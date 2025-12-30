@@ -1,6 +1,7 @@
 package com.example.jutjubic.model;
 
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 public class Video {
@@ -13,37 +14,42 @@ public class Video {
 
     private String description;
 
-    // OBAVEZNO prazan konstruktor za JPA
-    public Video() {
-    }
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
 
-    public Video(String title, String description) {
+    // Autor videa
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User author;
+
+    public Video() {}
+
+    public Video(String title, String description, User author) {
         this.title = title;
         this.description = description;
+        this.author = author;
     }
 
-    // getteri i setteri
-    public Long getId() {
-        return id;
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    // ===== Getteri / setteri =====
 
-    public String getTitle() {
-        return title;
-    }
+    public Long getId() { return id; }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
+    public String getTitle() { return title; }
 
-    public String getDescription() {
-        return description;
-    }
+    public String getDescription() { return description; }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+
+    public User getAuthor() { return author; }
+
+    public void setTitle(String title) { this.title = title; }
+
+    public void setDescription(String description) { this.description = description; }
+
+    public void setAuthor(User author) { this.author = author; }
 }

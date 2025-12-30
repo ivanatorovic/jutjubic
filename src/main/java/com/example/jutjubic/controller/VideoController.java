@@ -2,6 +2,7 @@ package com.example.jutjubic.controller;
 
 import com.example.jutjubic.model.Video;
 import com.example.jutjubic.repository.VideoRepository;
+import com.example.jutjubic.service.VideoService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -10,21 +11,15 @@ import java.util.List;
 @RequestMapping("/videos")
 public class VideoController {
 
-    private final VideoRepository videoRepository;
+    private final VideoService videoService;
 
-    public VideoController(VideoRepository videoRepository) {
-        this.videoRepository = videoRepository;
+    public VideoController(VideoService videoService) {
+        this.videoService = videoService;
     }
 
-    // GET /videos  -> svi videi
     @GetMapping
     public List<Video> getAll() {
-        return videoRepository.findAll();
-    }
-
-    // POST /videos  -> kreira novi video
-    @PostMapping
-    public Video create(@RequestBody Video video) {
-        return videoRepository.save(video);
+        return videoService.findAllNewestFirst();
     }
 }
+
