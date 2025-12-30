@@ -5,7 +5,7 @@ import com.example.jutjubic.service.UserService;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/api/users")
 public class UserController {
 
     private final UserService userService;
@@ -17,6 +17,6 @@ public class UserController {
     // GET /users/{id} -> prikaz korisnika (javni profil)
     @GetMapping("/{id}")
     public User getById(@PathVariable Long id) {
-        return userService.getById(id);
+        return userService.findById(id);
     }
 }

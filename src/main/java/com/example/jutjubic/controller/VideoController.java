@@ -14,7 +14,7 @@ import java.nio.file.Paths;
 import java.util.List;
 
 @RestController
-@RequestMapping("/videos")
+@RequestMapping("/api/videos")
 public class VideoController {
 
     private final VideoService videoService;
@@ -35,9 +35,10 @@ public class VideoController {
     }
 
     // 2) Lista svih video objava (da drugi korisnici vide novu objavu)
+
     @GetMapping
-    public ResponseEntity<List<Video>> getAll() {
-        return ResponseEntity.ok(videoService.getAll());
+    public List<Video> getAll() {
+        return videoService.findAllNewestFirst();
     }
 
     // 3) Jedan video po id (metadata)

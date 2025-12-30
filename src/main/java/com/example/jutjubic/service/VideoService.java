@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -178,5 +179,12 @@ public class VideoService {
         } catch (IOException ignored) {
             // namerno ignorišemo da ne prekrije originalnu grešku
         }
+    }
+    public List<Video> findAllNewestFirst() {
+        // Ako imaš createdAt:
+        // return videoRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        // Ako nemaš createdAt (fallback):
+        return videoRepository.findAll(Sort.by(Sort.Direction.DESC, "id"));
     }
 }
