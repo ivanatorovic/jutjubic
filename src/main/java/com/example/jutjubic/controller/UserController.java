@@ -1,5 +1,7 @@
 package com.example.jutjubic.controller;
 
+import com.example.jutjubic.dto.UserPublicDto;
+import com.example.jutjubic.mapper.DtoMapper;
 import com.example.jutjubic.model.User;
 import com.example.jutjubic.service.UserService;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +18,9 @@ public class UserController {
 
     // GET /users/{id} -> prikaz korisnika (javni profil)
     @GetMapping("/{id}")
-    public User getById(@PathVariable Long id) {
-        return userService.findById(id);
+    public UserPublicDto getById(@PathVariable Long id) {
+        User u = userService.findById(id);
+        return DtoMapper.toUserPublicDto(u);
     }
+
 }
