@@ -37,6 +37,10 @@ public class Video {
 
     private String location;             // opcionalna geolokacija
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
+
     // ------------------ KONSTRUKTORI ------------------
 
     public Video() {} // obavezan prazan konstruktor za JPA
@@ -89,4 +93,7 @@ public class Video {
     public String getLocation() { return location; }
 
     public void setLocation(String location) { this.location = location; }
+
+    public User getUser() { return user; }
+    public void setUser(User user) { this.user = user; }
 }

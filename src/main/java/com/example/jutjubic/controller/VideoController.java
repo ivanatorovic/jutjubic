@@ -1,5 +1,7 @@
 package com.example.jutjubic.controller;
 
+import com.example.jutjubic.dto.VideoPublicDto;
+import com.example.jutjubic.mapper.DtoMapper;
 import com.example.jutjubic.model.Video;
 import com.example.jutjubic.service.VideoService;
 import org.springframework.core.io.FileSystemResource;
@@ -37,15 +39,19 @@ public class VideoController {
     // 2) Lista svih video objava (da drugi korisnici vide novu objavu)
 
     @GetMapping
-    public List<Video> getAll() {
-        return videoService.findAllNewestFirst();
+    public List<VideoPublicDto> getAll() {
+        return videoService.findAllNewestFirst().stream()
+                .map(DtoMapper::toVideoPublicDto)
+                .toList();
     }
 
     // 3) Jedan video po id (metadata)
     @GetMapping("/{id}")
-    public ResponseEntity<Video> getById(@PathVariable Long id) {
-        return ResponseEntity.ok(videoService.getById(id));
+    public ResponseEntity<VideoPublicDto> getById(@PathVariable Long id) {
+        Video v = videoService.getById(id);
+        return ResponseEntity.ok(DtoMapper.toVideoPublicDto(v));
     }
+
 
     // 4) Vrati thumbnail bytes (ovo koristi cache u VideoService)
     @GetMapping(value = "/{id}/thumbnail")
