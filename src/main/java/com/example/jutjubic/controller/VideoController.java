@@ -1,8 +1,10 @@
 package com.example.jutjubic.controller;
 
+import com.example.jutjubic.dto.CommentPublicDto;
 import com.example.jutjubic.dto.VideoPublicDto;
 import com.example.jutjubic.mapper.DtoMapper;
 import com.example.jutjubic.model.Video;
+import com.example.jutjubic.service.CommentService;
 import com.example.jutjubic.service.VideoService;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -20,9 +22,11 @@ import java.util.List;
 public class VideoController {
 
     private final VideoService videoService;
+    private final CommentService commentService;
 
-    public VideoController(VideoService videoService) {
+    public VideoController(VideoService videoService, CommentService commentService) {
         this.videoService = videoService;
+        this.commentService = commentService;
     }
 
     // 1) Upload (multipart/form-data)
@@ -40,16 +44,13 @@ public class VideoController {
 
     @GetMapping
     public List<VideoPublicDto> getAll() {
-        return videoService.findAllNewestFirst().stream()
-                .map(DtoMapper::toVideoPublicDto)
-                .toList();
+        return videoService.findAllNewestFirst();
     }
 
     // 3) Jedan video po id (metadata)
     @GetMapping("/{id}")
     public ResponseEntity<VideoPublicDto> getById(@PathVariable Long id) {
-        Video v = videoService.getById(id);
-        return ResponseEntity.ok(DtoMapper.toVideoPublicDto(v));
+        return ResponseEntity.ok(videoService.getDtoById(id));
     }
 
 
@@ -93,4 +94,11 @@ public class VideoController {
                 .contentType(MediaType.valueOf("video/mp4"))
                 .body(resource);
     }
+
+    @GetMapping("/{id}/comments")
+    public ResponseEntity<List<CommentPublicDto>> getComments(@PathVariable Long id) {
+        List<CommentPublicDto> comments = commentService.getForVideo(id);
+        return ResponseEntity.ok(comments);
+    }
+
 }

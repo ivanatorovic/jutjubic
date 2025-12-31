@@ -2,23 +2,37 @@ package com.example.jutjubic.service;
 
 import java.util.List;
 
+import com.example.jutjubic.dto.VideoPublicDto;
+import com.example.jutjubic.mapper.DtoMapper;
+import com.example.jutjubic.model.Video;
+import com.example.jutjubic.repository.CommentRepository;
+import com.example.jutjubic.repository.VideoLikeRepository;
+import com.example.jutjubic.repository.VideoRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.example.jutjubic.dto.RegisterRequest;
 import com.example.jutjubic.model.User;
 import com.example.jutjubic.repository.UserRepository;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final CommentRepository commentRepository;
+    private final VideoLikeRepository videoLikeRepository;
+    private final VideoRepository videoRepository;
 
     public UserService(UserRepository userRepository,
-                       PasswordEncoder passwordEncoder) {
+                       PasswordEncoder passwordEncoder, CommentRepository commentRepository, VideoLikeRepository videoLikeRepository, VideoRepository videoRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.commentRepository = commentRepository;
+        this.videoLikeRepository = videoLikeRepository;
+        this.videoRepository = videoRepository;
     }
 
     // ================== READ ==================
@@ -79,5 +93,21 @@ public class UserService {
         user.setActivationToken(null);
 
         return userRepository.save(user);
+    }
+
+    public List<VideoPublicDto> getUserVideos(Long userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found: " + userId);
+        }
+
+        List<Video> videos = videoRepository.findByUserIdOrderByCreatedAtDesc(userId);
+
+        return videos.stream()
+                .map(v -> DtoMapper.toVideoPublicDto(
+                        v,
+                        videoLikeRepository.countByVideoId(v.getId()),
+                        commentRepository.countByVideoId(v.getId())
+                ))
+                .toList();
     }
 }

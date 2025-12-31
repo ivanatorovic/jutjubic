@@ -12,5 +12,7 @@ public record VideoPublicDto(
         LocalDateTime createdAt,
         String location,
         Long userId,
-        String username
+        String username,
+        long likeCount,
+        long commentCount
 ) {}

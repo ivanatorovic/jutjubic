@@ -1,15 +1,22 @@
 package com.example.jutjubic.service;
 
+import com.example.jutjubic.dto.VideoPublicDto;
 import com.example.jutjubic.dto.VideoUploadRequest;
+import com.example.jutjubic.mapper.DtoMapper;
 import com.example.jutjubic.model.Video;
+import com.example.jutjubic.repository.CommentRepository;
+import com.example.jutjubic.repository.UserRepository;
+import com.example.jutjubic.repository.VideoLikeRepository;
 import com.example.jutjubic.repository.VideoRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.nio.file.*;
@@ -22,15 +29,19 @@ public class VideoService {
 
     private final VideoRepository videoRepository;
     private final ObjectMapper objectMapper;
+    private final VideoLikeService videoLikeService;
+    private final CommentService commentService;
 
     private static final long MAX_VIDEO_SIZE_BYTES = 200L * 1024 * 1024;
 
     private static final String VIDEO_DIR = "storage/videos";
     private static final String THUMB_DIR = "storage/thumbnails";
 
-    public VideoService(VideoRepository videoRepository, ObjectMapper objectMapper) {
+    public VideoService(VideoRepository videoRepository, ObjectMapper objectMapper, VideoLikeService videoLikeService, CommentService commentService) {
         this.videoRepository = videoRepository;
         this.objectMapper = objectMapper;
+        this.videoLikeService = videoLikeService;
+        this.commentService = commentService;
     }
 
     /**
@@ -180,11 +191,28 @@ public class VideoService {
             // namerno ignorišemo da ne prekrije originalnu grešku
         }
     }
-    public List<Video> findAllNewestFirst() {
-        // Ako imaš createdAt:
-        // return videoRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"));
 
-        // Ako nemaš createdAt (fallback):
-        return videoRepository.findAll(Sort.by(Sort.Direction.DESC, "id"));
+    public List<VideoPublicDto> findAllNewestFirst() {
+        List<Video> videos = videoRepository.findAll(Sort.by(Sort.Direction.DESC, "id"));
+        return videos.stream()
+                .map(v -> DtoMapper.toVideoPublicDto(
+                        v,
+                        videoLikeService.countForVideo(v.getId()),
+                        commentService.countForVideo(v.getId())
+                ))
+                .toList();
     }
+
+
+    public VideoPublicDto getDtoById(Long id) {
+        Video v = getById(id);
+        return DtoMapper.toVideoPublicDto(
+                v,
+                videoLikeService.countForVideo(v.getId()),
+                commentService.countForVideo(v.getId())
+        );
+    }
+
+
+
 }
