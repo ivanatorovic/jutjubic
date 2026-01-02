@@ -50,6 +50,13 @@ public class AuthenticationController {
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
         userService.register(request);
-        return ResponseEntity.ok("Registracija uspešna");
+        return ResponseEntity.ok("Link za registraciju je uspešno poslat! Proverite email adresu koju ste uneli radi završetka registracije.");
     }
+
+    @GetMapping("/activate")
+    public ResponseEntity<?> activate(@RequestParam("token") String token) {
+        userService.activateAccount(token);
+        return ResponseEntity.ok("Nalog je uspešno aktiviran. Sada možete da se prijavite.");
+    }
+
 }

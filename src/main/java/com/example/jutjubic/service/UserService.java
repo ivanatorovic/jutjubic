@@ -4,6 +4,11 @@ import java.util.List;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.UUID;
+
 
 import com.example.jutjubic.dto.RegisterRequest;
 import com.example.jutjubic.model.User;
@@ -14,12 +19,20 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
+
+    @Value("${app.activation.url}")
+    private String activationUrl;
+
 
     public UserService(UserRepository userRepository,
-                       PasswordEncoder passwordEncoder) {
+                       PasswordEncoder passwordEncoder,
+                       EmailService emailService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.emailService = emailService;
     }
+
 
     // ================== READ ==================
 
@@ -40,7 +53,7 @@ public class UserService {
     }
 
     // ================== REGISTER ==================
-
+    @Transactional
     public User register(RegisterRequest req) {
 
         // ===== VALIDACIJE =====
@@ -66,6 +79,7 @@ public class UserService {
         }
 
         // ===== KREIRANJE KORISNIKA =====
+
         User user = new User();
         user.setEmail(req.email);
         user.setUsername(req.username);
@@ -74,10 +88,33 @@ public class UserService {
         user.setLastName(req.lastName);
         user.setAddress(req.address);
 
-        // bez email aktivacije (za 3.2)
+        // ✅ SA EMAIL AKTIVACIJOM
+        user.setEnabled(false);
+        String token = UUID.randomUUID().toString();
+        user.setActivationToken(token);
+
+        // 1) snimi u bazu
+        User saved = userRepository.save(user);
+
+        // 2) pošalji mail
+        String link = activationUrl + "?token=" + token;
+        emailService.sendActivationEmail(saved.getEmail(), link);
+
+        return saved;
+    }
+
+    @Transactional
+    public void activateAccount(String token) {
+        User user = userRepository.findByActivationToken(token)
+                .orElseThrow(() -> new RuntimeException("Nevažeći aktivacioni token"));
+
+        if (user.isEnabled()) {
+            return; // već aktiviran (može i da baciš izuzetak ako želiš)
+        }
+
         user.setEnabled(true);
         user.setActivationToken(null);
-
-        return userRepository.save(user);
+        userRepository.save(user);
     }
+
 }
