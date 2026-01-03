@@ -1,7 +1,9 @@
 package com.example.jutjubic.mapper;
 
+import com.example.jutjubic.dto.CommentPublicDto;
 import com.example.jutjubic.dto.UserPublicDto;
 import com.example.jutjubic.dto.VideoPublicDto;
+import com.example.jutjubic.model.Comment;
 import com.example.jutjubic.model.User;
 import com.example.jutjubic.model.Video;
 
@@ -20,7 +22,7 @@ public class DtoMapper {
         );
     }
 
-    public static VideoPublicDto toVideoPublicDto(Video v) {
+    public static VideoPublicDto toVideoPublicDto(Video v,long likeCount,long commentCount) {
         Long userId = null;
         String username = null;
 
@@ -38,7 +40,27 @@ public class DtoMapper {
                 v.getCreatedAt(),
                 v.getLocation(),
                 userId,
-                username
+                username,
+                likeCount,
+                commentCount
+        );
+    }
+
+    public static CommentPublicDto toCommentPublicDto(Comment c) {
+        Long userId = null;
+        String username = null;
+
+        if (c.getUser() != null) {
+            userId = c.getUser().getId();
+            username = c.getUser().getUsername();
+        }
+
+        return new CommentPublicDto(
+                c.getId(),
+                c.getText(),
+                userId,
+                username,
+                c.getCreatedAt()
         );
     }
 }
