@@ -2,24 +2,51 @@ package com.example.jutjubic.service;
 
 import java.util.List;
 
+import com.example.jutjubic.dto.VideoPublicDto;
+import com.example.jutjubic.mapper.DtoMapper;
+import com.example.jutjubic.model.Video;
+import com.example.jutjubic.repository.CommentRepository;
+import com.example.jutjubic.repository.VideoLikeRepository;
+import com.example.jutjubic.repository.VideoRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.UUID;
+
 
 import com.example.jutjubic.dto.RegisterRequest;
 import com.example.jutjubic.model.User;
 import com.example.jutjubic.repository.UserRepository;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
+    private final VideoRepository videoRepository;
+    private final VideoLikeRepository videoLikeRepository;
+    private final CommentRepository commentRepository;
+
+    @Value("${app.activation.url}")
+    private String activationUrl;
+
 
     public UserService(UserRepository userRepository,
-                       PasswordEncoder passwordEncoder) {
+                       PasswordEncoder passwordEncoder,
+                       EmailService emailService, VideoRepository videoRepository, VideoLikeRepository videoLikeRepository, CommentRepository commentRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.emailService = emailService;
+        this.videoRepository = videoRepository;
+        this.videoLikeRepository = videoLikeRepository;
+        this.commentRepository = commentRepository;
     }
+
 
     // ================== READ ==================
 
@@ -40,7 +67,7 @@ public class UserService {
     }
 
     // ================== REGISTER ==================
-
+    @Transactional
     public User register(RegisterRequest req) {
 
         // ===== VALIDACIJE =====
@@ -66,6 +93,7 @@ public class UserService {
         }
 
         // ===== KREIRANJE KORISNIKA =====
+
         User user = new User();
         user.setEmail(req.email);
         user.setUsername(req.username);
@@ -74,10 +102,49 @@ public class UserService {
         user.setLastName(req.lastName);
         user.setAddress(req.address);
 
-        // bez email aktivacije (za 3.2)
+        // ✅ SA EMAIL AKTIVACIJOM
+        user.setEnabled(false);
+        String token = UUID.randomUUID().toString();
+        user.setActivationToken(token);
+
+        // 1) snimi u bazu
+        User saved = userRepository.save(user);
+
+        // 2) pošalji mail
+        String link = activationUrl + "?token=" + token;
+        emailService.sendActivationEmail(saved.getEmail(), link);
+
+        return saved;
+    }
+
+    @Transactional
+    public void activateAccount(String token) {
+        User user = userRepository.findByActivationToken(token)
+                .orElseThrow(() -> new RuntimeException("Nevažeći aktivacioni token"));
+
+        if (user.isEnabled()) {
+            return; // već aktiviran (može i da baciš izuzetak ako želiš)
+        }
+
         user.setEnabled(true);
         user.setActivationToken(null);
-
-        return userRepository.save(user);
+        userRepository.save(user);
     }
+
+    public List<VideoPublicDto> getUserVideos(Long userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found: " + userId);
+        }
+
+        List<Video> videos = videoRepository.findByUserIdOrderByCreatedAtDesc(userId);
+
+        return videos.stream()
+                .map(v -> DtoMapper.toVideoPublicDto(
+                        v,
+                        videoLikeRepository.countByVideoId(v.getId()),
+                        commentRepository.countByVideoId(v.getId())
+                ))
+                .toList();
+    }
+
 }
