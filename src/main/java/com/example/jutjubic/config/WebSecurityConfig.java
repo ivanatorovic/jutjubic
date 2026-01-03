@@ -1,5 +1,6 @@
 package com.example.jutjubic.config;
 
+import com.example.jutjubic.security.LoginRateLimitFilter;
 import com.example.jutjubic.security.TokenAuthenticationFilter;
 import com.example.jutjubic.security.auth.RestAuthenticationEntryPoint;
 import com.example.jutjubic.util.TokenUtils;
@@ -34,30 +35,31 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public TokenAuthenticationFilter tokenAuthenticationFilter() {
+        return new TokenAuthenticationFilter(tokenUtils, userDetailsService);
+    }
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http,
+                                           LoginRateLimitFilter loginRateLimitFilter,
+                                           TokenAuthenticationFilter tokenAuthenticationFilter) throws Exception {
 
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-
         http.exceptionHandling(ex -> ex.authenticationEntryPoint(restAuthenticationEntryPoint));
-
         http.csrf(csrf -> csrf.disable());
 
         http.authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/videos/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/users/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/videos/**").permitAll()
-
-
-
+                .requestMatchers(HttpMethod.GET, "/api/users/**").permitAll()
                 .anyRequest().authenticated()
-
         );
 
-        http.addFilterBefore(
-                new TokenAuthenticationFilter(tokenUtils, userDetailsService),
-                BasicAuthenticationFilter.class
-        );
+        // 1) Token filter pre BasicAuthenticationFilter
+        http.addFilterBefore(tokenAuthenticationFilter, BasicAuthenticationFilter.class);
+
+        // 2) Rate limit filter pre token filtera (garantovan redosled)
+        http.addFilterBefore(loginRateLimitFilter, TokenAuthenticationFilter.class);
 
         return http.build();
     }
