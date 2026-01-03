@@ -112,10 +112,10 @@ public class VideoService {
             // 3) Snimi fajlove na disk
             savedVideoPath = saveFile(videoFile, VIDEO_DIR);
             savedThumbPath = saveFile(thumbnailFile, THUMB_DIR);
-           // Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            //String principalName = auth.getName();
-           // var uploader = userRepository.findByEmail(principalName)
-                    //.orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Korisnik ne postoji."));
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            String principalName = auth.getName();
+            var uploader = userRepository.findByEmail(principalName)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Korisnik ne postoji."));
             // 4) Kreiraj entitet
             Video video = new Video();
             video.setTitle(info.getTitle());
@@ -126,7 +126,7 @@ public class VideoService {
             video.setThumbnailPath(savedThumbPath);
             video.setSizeMB(videoFile.getSize() / 1024 / 1024);
             video.setCreatedAt(LocalDateTime.now());
-           // video.setUser(uploader);
+            video.setUser(uploader);
 
             // 5) Upis u bazu (u transakciji)
             Video saved = videoRepository.save(video);
