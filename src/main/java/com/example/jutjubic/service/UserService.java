@@ -2,37 +2,37 @@ package com.example.jutjubic.service;
 
 import java.util.List;
 
-import com.example.jutjubic.dto.VideoPublicDto;
-import com.example.jutjubic.mapper.DtoMapper;
-import com.example.jutjubic.model.Video;
-import com.example.jutjubic.repository.CommentRepository;
-import com.example.jutjubic.repository.VideoLikeRepository;
-import com.example.jutjubic.repository.VideoRepository;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.example.jutjubic.dto.RegisterRequest;
 import com.example.jutjubic.model.User;
 import com.example.jutjubic.repository.UserRepository;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
+
+    @Value("${app.activation.url}")
+    private String activationUrl;
+
     private final CommentRepository commentRepository;
     private final VideoLikeRepository videoLikeRepository;
     private final VideoRepository videoRepository;
 
     public UserService(UserRepository userRepository,
                        PasswordEncoder passwordEncoder, CommentRepository commentRepository, VideoLikeRepository videoLikeRepository, VideoRepository videoRepository) {
+                       PasswordEncoder passwordEncoder,
+                       EmailService emailService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.commentRepository = commentRepository;
         this.videoLikeRepository = videoLikeRepository;
         this.videoRepository = videoRepository;
+        this.emailService = emailService;
     }
 
     // ================== READ ==================
@@ -54,7 +54,7 @@ public class UserService {
     }
 
     // ================== REGISTER ==================
-
+    @Transactional
     public User register(RegisterRequest req) {
 
         // ===== VALIDACIJE =====
@@ -80,6 +80,7 @@ public class UserService {
         }
 
         // ===== KREIRANJE KORISNIKA =====
+
         User user = new User();
         user.setEmail(req.email);
         user.setUsername(req.username);
@@ -88,11 +89,33 @@ public class UserService {
         user.setLastName(req.lastName);
         user.setAddress(req.address);
 
-        // bez email aktivacije (za 3.2)
+        // ✅ SA EMAIL AKTIVACIJOM
+        user.setEnabled(false);
+        String token = UUID.randomUUID().toString();
+        user.setActivationToken(token);
+
+        // 1) snimi u bazu
+        User saved = userRepository.save(user);
+
+        // 2) pošalji mail
+        String link = activationUrl + "?token=" + token;
+        emailService.sendActivationEmail(saved.getEmail(), link);
+
+        return saved;
+    }
+
+    @Transactional
+    public void activateAccount(String token) {
+        User user = userRepository.findByActivationToken(token)
+                .orElseThrow(() -> new RuntimeException("Nevažeći aktivacioni token"));
+
+        if (user.isEnabled()) {
+            return; // već aktiviran (može i da baciš izuzetak ako želiš)
+        }
+
         user.setEnabled(true);
         user.setActivationToken(null);
-
-        return userRepository.save(user);
+        userRepository.save(user);
     }
 
     public List<VideoPublicDto> getUserVideos(Long userId) {
