@@ -1,26 +1,24 @@
 package com.example.jutjubic.service;
 
-import java.util.List;
-
+import com.example.jutjubic.dto.RegisterRequest;
 import com.example.jutjubic.dto.VideoPublicDto;
 import com.example.jutjubic.mapper.DtoMapper;
+import com.example.jutjubic.model.User;
 import com.example.jutjubic.model.Video;
 import com.example.jutjubic.repository.CommentRepository;
+import com.example.jutjubic.repository.UserRepository;
 import com.example.jutjubic.repository.VideoLikeRepository;
 import com.example.jutjubic.repository.VideoRepository;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.UUID;
-
-
-import com.example.jutjubic.dto.RegisterRequest;
-import com.example.jutjubic.model.User;
-import com.example.jutjubic.repository.UserRepository;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
+import java.util.UUID;
 
 @Service
 public class UserService {
@@ -35,10 +33,14 @@ public class UserService {
     @Value("${app.activation.url}")
     private String activationUrl;
 
-
-    public UserService(UserRepository userRepository,
-                       PasswordEncoder passwordEncoder,
-                       EmailService emailService, VideoRepository videoRepository, VideoLikeRepository videoLikeRepository, CommentRepository commentRepository) {
+    public UserService(
+            UserRepository userRepository,
+            PasswordEncoder passwordEncoder,
+            EmailService emailService,
+            VideoRepository videoRepository,
+            VideoLikeRepository videoLikeRepository,
+            CommentRepository commentRepository
+    ) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.emailService = emailService;
@@ -47,19 +49,24 @@ public class UserService {
         this.commentRepository = commentRepository;
     }
 
-
     // ================== READ ==================
 
     public User findByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() ->
-                        new RuntimeException("Korisnik sa datim email-om ne postoji"));
+                        new ResponseStatusException(
+                                HttpStatus.NOT_FOUND,
+                                "Korisnik sa datim email-om ne postoji"
+                        ));
     }
 
     public User findById(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() ->
-                        new RuntimeException("Korisnik ne postoji"));
+                        new ResponseStatusException(
+                                HttpStatus.NOT_FOUND,
+                                "Korisnik ne postoji"
+                        ));
     }
 
     public List<User> findAll() {
@@ -67,29 +74,38 @@ public class UserService {
     }
 
     // ================== REGISTER ==================
+
     @Transactional
     public User register(RegisterRequest req) {
 
         // ===== VALIDACIJE =====
+
         if (req.email == null || req.email.isBlank()) {
-            throw new RuntimeException("Email je obavezan");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email je obavezan");
         }
 
         if (req.username == null || req.username.isBlank()) {
-            throw new RuntimeException("Korisničko ime je obavezno");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Korisničko ime je obavezno");
         }
 
+        if (req.password == null || req.password.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Lozinka je obavezna");
+        }
+
+        if (req.confirmPassword == null || req.confirmPassword.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Potvrda lozinke je obavezna");
+        }
 
         if (!req.password.equals(req.confirmPassword)) {
-            throw new RuntimeException("Lozinke se ne poklapaju");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Lozinke se ne poklapaju");
         }
 
         if (userRepository.existsByEmail(req.email)) {
-            throw new RuntimeException("Email je već zauzet");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email je već zauzet");
         }
 
         if (userRepository.existsByUsername(req.username)) {
-            throw new RuntimeException("Korisničko ime je već zauzeto");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Korisničko ime je već zauzeto");
         }
 
         // ===== KREIRANJE KORISNIKA =====
@@ -102,28 +118,38 @@ public class UserService {
         user.setLastName(req.lastName);
         user.setAddress(req.address);
 
-        // ✅ SA EMAIL AKTIVACIJOM
+        // nalog još nije aktivan
         user.setEnabled(false);
+
+        // generisanje aktivacionog tokena
         String token = UUID.randomUUID().toString();
         user.setActivationToken(token);
 
-        // 1) snimi u bazu
+        // 1️⃣ snimi u bazu
         User saved = userRepository.save(user);
 
-        // 2) pošalji mail
-        String link = activationUrl + "?token=" + token;
-        emailService.sendActivationEmail(saved.getEmail(), link);
+        // 2️⃣ pošalji aktivacioni mail
+        String activationLink = activationUrl + "?token=" + token;
+        emailService.sendActivationEmail(saved.getEmail(), activationLink);
 
         return saved;
     }
 
+    // ================== ACTIVATE ACCOUNT ==================
+
     @Transactional
     public void activateAccount(String token) {
+
         User user = userRepository.findByActivationToken(token)
-                .orElseThrow(() -> new RuntimeException("Nevažeći aktivacioni token"));
+                .orElseThrow(() ->
+                        new ResponseStatusException(
+                                HttpStatus.BAD_REQUEST,
+                                "Nevažeći aktivacioni token"
+                        ));
 
         if (user.isEnabled()) {
-            return; // već aktiviran (može i da baciš izuzetak ako želiš)
+            // već aktiviran – nema potrebe za greškom
+            return;
         }
 
         user.setEnabled(true);
@@ -131,12 +157,19 @@ public class UserService {
         userRepository.save(user);
     }
 
+    // ================== USER VIDEOS ==================
+
     public List<VideoPublicDto> getUserVideos(Long userId) {
+
         if (!userRepository.existsById(userId)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found: " + userId);
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "User not found: " + userId
+            );
         }
 
-        List<Video> videos = videoRepository.findByUserIdOrderByCreatedAtDesc(userId);
+        List<Video> videos =
+                videoRepository.findByUserIdOrderByCreatedAtDesc(userId);
 
         return videos.stream()
                 .map(v -> DtoMapper.toVideoPublicDto(
@@ -146,5 +179,4 @@ public class UserService {
                 ))
                 .toList();
     }
-
 }
