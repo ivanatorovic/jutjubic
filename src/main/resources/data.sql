@@ -1,7 +1,8 @@
 
 
 INSERT INTO users (email,username,password,first_name,last_name,address,enabled,activation_token,created_at)VALUES
-    ('pera@gmail.com','pera','$2a$10$6Fi/kOMfMZ2Rki/yxM.TDeZtEDh/.YKvUy1tYiHd69/I2rtZGGON6','Pera','Peric','Bulevar Oslobodjenja 22',true,NULL, NOW());
+    ('pera@gmail.com','pera','$2a$10$6Fi/kOMfMZ2Rki/yxM.TDeZtEDh/.YKvUy1tYiHd69/I2rtZGGON6','Pera','Peric','Bulevar Oslobodjenja 22',true,NULL, NOW()),
+    ('zika@gmail.com','zika','$2a$12$NHk/iCm/q0uILyn1MxnKJOpHMwtqpDaMofDsjMrBjFpef1ZN0h/S6','Zika','Zikic','Bulevar Evrope 2',true,NULL, NOW());
 
 
 
