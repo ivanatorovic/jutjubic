@@ -21,6 +21,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+
 
 import java.io.IOException;
 import java.nio.file.*;
@@ -36,6 +40,7 @@ public class VideoService {
 
 
 
+    private final UserRepository userRepository;
 
     private final VideoRepository videoRepository;
     private final ObjectMapper objectMapper;
@@ -47,11 +52,16 @@ public class VideoService {
     private static final String VIDEO_DIR = "storage/videos";
     private static final String THUMB_DIR = "storage/thumbnails";
 
-    public VideoService(VideoRepository videoRepository, ObjectMapper objectMapper, VideoLikeService videoLikeService, CommentService commentService) {
+    public VideoService(VideoRepository videoRepository,
+                        ObjectMapper objectMapper,
+                        VideoLikeService videoLikeService,
+                        CommentService commentService,
+                        UserRepository userRepository) {
         this.videoRepository = videoRepository;
         this.objectMapper = objectMapper;
         this.videoLikeService = videoLikeService;
         this.commentService = commentService;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -102,7 +112,10 @@ public class VideoService {
             // 3) Snimi fajlove na disk
             savedVideoPath = saveFile(videoFile, VIDEO_DIR);
             savedThumbPath = saveFile(thumbnailFile, THUMB_DIR);
-
+           // Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            //String principalName = auth.getName();
+           // var uploader = userRepository.findByEmail(principalName)
+                    //.orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Korisnik ne postoji."));
             // 4) Kreiraj entitet
             Video video = new Video();
             video.setTitle(info.getTitle());
@@ -113,6 +126,7 @@ public class VideoService {
             video.setThumbnailPath(savedThumbPath);
             video.setSizeMB(videoFile.getSize() / 1024 / 1024);
             video.setCreatedAt(LocalDateTime.now());
+           // video.setUser(uploader);
 
             // 5) Upis u bazu (u transakciji)
             Video saved = videoRepository.save(video);
