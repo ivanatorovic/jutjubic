@@ -14,5 +14,6 @@ public record VideoPublicDto(
         Long userId,
         String username,
         long likeCount,
-        long commentCount
+        long commentCount,
+        long viewCount
 ) {}
