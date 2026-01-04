@@ -235,15 +235,25 @@ public class VideoService {
                 .toList();
     }
 
-
+    public void registerView(Long videoId) {
+        int updated = videoRepository.incrementViewCount(videoId);
+        if (updated == 0) {
+            throw new NotFoundException("Video sa id=" + videoId + " ne postoji.");
+        }
+    }
     public VideoPublicDto getDtoById(Long id) {
-        Video v = getById(id);
+        // uvecaj broj pregleda pri ulasku na stranicu videa
+        registerView(id);
+
+        Video v = getById(id); // ponovo ucitaj da DTO ima azuran viewCount
         return DtoMapper.toVideoPublicDto(
                 v,
                 videoLikeService.countForVideo(v.getId()),
                 commentService.countForVideo(v.getId())
         );
     }
+
+
 
 
 

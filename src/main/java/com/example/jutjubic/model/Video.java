@@ -51,6 +51,10 @@ public class Video {
     @OneToMany(mappedBy = "video", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<VideoLike> likes = new ArrayList<>();
 
+    @Column(name = "view_count", nullable = false)
+    private long viewCount = 0;
+
+
     // ------------------ KONSTRUKTORI ------------------
 
     public Video() {} // obavezan prazan konstruktor za JPA
@@ -73,6 +77,10 @@ public class Video {
     public void setId(Long id) { this.id = id; }
 
     public String getTitle() { return title; }
+
+    public long getViewCount() {
+        return viewCount;
+    }
 
     public void setTitle(String title) { this.title = title; }
 

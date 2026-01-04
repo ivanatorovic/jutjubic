@@ -42,7 +42,8 @@ public class DtoMapper {
                 userId,
                 username,
                 likeCount,
-                commentCount
+                commentCount,
+                v.getViewCount()
         );
     }
 
