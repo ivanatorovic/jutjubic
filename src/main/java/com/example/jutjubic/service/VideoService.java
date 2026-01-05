@@ -104,6 +104,15 @@ public class VideoService {
             throw new BadRequestException("Thumbnail slika je obavezna.");
         }
 
+        // ✅ Validacije za info polja (title, description, tags)
+        if (info.getTitle() == null || info.getTitle().trim().isEmpty()
+                || info.getDescription() == null || info.getDescription().trim().isEmpty()
+                || info.getTags() == null || info.getTags().isEmpty()
+                || info.getTags().stream().anyMatch(t -> t == null || t.trim().isEmpty())) {
+            throw new BadRequestException("Title, opis i tagovi moraju biti popunjeni.");
+        }
+
+
         // Ove promenljive čuvamo da bismo mogli da obrišemo fajlove ako pukne posle snimanja
         String savedVideoPath = null;
         String savedThumbPath = null;
