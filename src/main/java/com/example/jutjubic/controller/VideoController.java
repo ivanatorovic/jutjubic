@@ -5,12 +5,16 @@ import com.example.jutjubic.dto.VideoPublicDto;
 import com.example.jutjubic.mapper.DtoMapper;
 import com.example.jutjubic.model.Video;
 import com.example.jutjubic.service.CommentService;
+import com.example.jutjubic.service.VideoLikeService;
 import com.example.jutjubic.service.VideoService;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -23,10 +27,12 @@ public class VideoController {
 
     private final VideoService videoService;
     private final CommentService commentService;
+    private final VideoLikeService videoLikeService;
 
-    public VideoController(VideoService videoService, CommentService commentService) {
+    public VideoController(VideoService videoService, CommentService commentService, VideoLikeService videoLikeService) {
         this.videoService = videoService;
         this.commentService = commentService;
+        this.videoLikeService = videoLikeService;
     }
 
     // 1) Upload (multipart/form-data)
@@ -100,5 +106,35 @@ public class VideoController {
         List<CommentPublicDto> comments = commentService.getForVideo(id);
         return ResponseEntity.ok(comments);
     }
+
+    @PostMapping("/{id}/like")
+    public long like(@PathVariable Long id, Authentication auth) {
+        if (auth == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Morate biti ulogovani");
+        }
+        return videoLikeService.like(id, auth.getName()); // auth.getName() == email kod tebe
+    }
+
+    @DeleteMapping("/{id}/like")
+    public long unlike(@PathVariable Long id, Authentication auth) {
+        if (auth == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Morate biti ulogovani");
+        }
+        return videoLikeService.unlike(id, auth.getName());
+    }
+
+    @GetMapping("/{id}/like")
+    public boolean isLiked(@PathVariable Long id, Authentication auth) {
+        if (auth == null) return false; // anon user
+        return videoLikeService.isLiked(id, auth.getName());
+    }
+
+    @GetMapping("/{id}/likes/count")
+    public long likeCount(@PathVariable Long id) {
+        return videoLikeService.countForVideo(id);
+    }
+
+
+
 
 }
