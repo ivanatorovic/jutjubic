@@ -63,6 +63,32 @@ VALUES
     ('Top video!', 1, 1, NOW()),
     ('Brutalno!', 1, 2, NOW()),
     ('Nice', 2, 2, NOW());
+-- dodatni komentari za video 1
+INSERT INTO comments (text, video_id, user_id, created_at) VALUES
+                                                               ('Komentar 1',  1, 1, NOW() - INTERVAL '60 minutes'),
+                                                               ('Komentar 2',  1, 2, NOW() - INTERVAL '59 minutes'),
+                                                               ('Komentar 3',  1, 1, NOW() - INTERVAL '58 minutes'),
+                                                               ('Komentar 4',  1, 2, NOW() - INTERVAL '57 minutes'),
+                                                               ('Komentar 5',  1, 1, NOW() - INTERVAL '56 minutes'),
+
+                                                               ('Komentar 6',  1, 2, NOW() - INTERVAL '55 minutes'),
+                                                               ('Komentar 7',  1, 1, NOW() - INTERVAL '54 minutes'),
+                                                               ('Komentar 8',  1, 2, NOW() - INTERVAL '53 minutes'),
+                                                               ('Komentar 9',  1, 1, NOW() - INTERVAL '52 minutes'),
+                                                               ('Komentar 10', 1, 2, NOW() - INTERVAL '51 minutes'),
+
+                                                               ('Komentar 11', 1, 1, NOW() - INTERVAL '50 minutes'),
+                                                               ('Komentar 12', 1, 2, NOW() - INTERVAL '49 minutes'),
+                                                               ('Komentar 13', 1, 1, NOW() - INTERVAL '48 minutes'),
+                                                               ('Komentar 14', 1, 2, NOW() - INTERVAL '47 minutes'),
+                                                               ('Komentar 15', 1, 1, NOW() - INTERVAL '46 minutes'),
+
+                                                               ('Komentar 16', 1, 2, NOW() - INTERVAL '45 minutes'),
+                                                               ('Komentar 17', 1, 1, NOW() - INTERVAL '44 minutes'),
+                                                               ('Komentar 18', 1, 2, NOW() - INTERVAL '43 minutes'),
+                                                               ('Komentar 19', 1, 1, NOW() - INTERVAL '42 minutes'),
+                                                               ('Komentar 20', 1, 2, NOW() - INTERVAL '41 minutes');
+
 
 
 -- lajkovi
