@@ -44,12 +44,16 @@ public class VideoController {
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Video> uploadVideo(
             @RequestPart("info") String infoJson,
-            @RequestPart("thumbnail") MultipartFile thumbnail,     // sad je obavezno
+            @RequestPart("thumbnail") MultipartFile thumbnail,
             @RequestPart("video") MultipartFile videoFile
+
     ) {
+
+
         Video video = videoService.uploadVideo(infoJson, thumbnail, videoFile);
         return ResponseEntity.ok(video);
     }
+
 
     // 2) Lista svih video objava (da drugi korisnici vide novu objavu)
 

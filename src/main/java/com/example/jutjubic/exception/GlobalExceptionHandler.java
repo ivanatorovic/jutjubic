@@ -1,5 +1,5 @@
 package com.example.jutjubic.exception;
-
+import jakarta.servlet.http.HttpServletRequest;
 import com.example.jutjubic.exception.BadRequestException;
 import com.example.jutjubic.exception.NotFoundException;
 import org.springframework.http.*;
@@ -60,10 +60,24 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<?> handleOther(Exception ex) {
-        // opciono: loguj ex da vidiš pravi uzrok
-        // ex.printStackTrace();
+    public ResponseEntity<?> handleOther(Exception ex, HttpServletRequest req) {
 
+        // Ako je video stream endpoint, NE vraćaj JSON/Map, jer response ima video/mp4
+        String uri = req.getRequestURI();              // npr. /api/videos/5/stream
+        String accept = req.getHeader("Accept");       // ponekad browser šalje video/mp4
+        String contentType = req.getContentType();     // često null za GET
+
+        boolean isVideoStream =
+                (uri != null && uri.contains("/api/videos/") && uri.endsWith("/stream"))
+                        || (accept != null && accept.contains("video/mp4"))
+                        || (contentType != null && contentType.contains("video/mp4"));
+
+        if (isVideoStream) {
+            // samo status - bez body
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+
+        // za sve ostalo: standardan JSON error
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(Map.of(
                         "timestamp", Instant.now().toString(),
