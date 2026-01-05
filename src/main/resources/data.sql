@@ -1,63 +1,134 @@
-
-
-INSERT INTO users (email,username,password,first_name,last_name,address,enabled,activation_token,created_at)VALUES
-    ('pera@gmail.com','pera','$2a$10$6Fi/kOMfMZ2Rki/yxM.TDeZtEDh/.YKvUy1tYiHd69/I2rtZGGON6','Pera','Peric','Bulevar Oslobodjenja 22',true,NULL, NOW()),
-    ('zika@gmail.com','zika','$2a$12$NHk/iCm/q0uILyn1MxnKJOpHMwtqpDaMofDsjMrBjFpef1ZN0h/S6','Zika','Zikic','Bulevar Evrope 2',true,NULL, NOW());
-
-
-
-
-INSERT INTO videos (title, description, video_path, thumbnail_path, user_id, created_at,view_count)
+-- ===== USERS =====
+INSERT INTO users (email, username, password, first_name, last_name, address, enabled, activation_token, created_at)
 VALUES
-    ('Primer 1', 'Test video',
+    ('pera@gmail.com', 'pera', '$2a$10$6Fi/kOMfMZ2Rki/yxM.TDeZtEDh/.YKvUy1tYiHd69/I2rtZGGON6', 'Pera', 'Peric', 'Bulevar Oslobodjenja 22', true, NULL, NOW()),
+    ('zika@gmail.com', 'zika', '$2a$12$NHk/iCm/q0uILyn1MxnKJOpHMwtqpDaMofDsjMrBjFpef1ZN0h/S6', 'Zika', 'Zikic', 'Bulevar Evrope 2', true, NULL, NOW());
+
+
+
+-- ===== VIDEOS (BEZ tag kolone!) =====
+INSERT INTO videos (title, description, video_path, thumbnail_path, user_id, created_at, view_count)
+VALUES
+    ('Nauci da sviras klavir', 'opis',
      'storage\\videos\\14247790-hd_1920_1080_30fps.mp4',
      'storage\\thumbnails\\klavir.jpg',
      1,
-     NOW() - INTERVAL '5 days',0),
+     NOW() - INTERVAL '5 days', 0),
 
-    ('Primer 2', 'Još jedan video',
-     'storage\\videos\\14346684_2160_3840_30fps.mp4',
+    ('Umirujuce more', 'Letnji video sa mora koji prikazuje plažu, talase i opuštenu atmosferu. Kratak klip koji dočarava letnji odmor i sunce.',
+     'storage\\videos\\855633-hd_1920_1080_25fps.mp4',
      'storage\\thumbnails\\gradska_plaza2.jpg',
      1,
-     NOW() - INTERVAL '4 days 3 hours',0),
+     NOW() - INTERVAL '4 days 3 hours', 0),
 
-    ('Primer 3', 'Još jedan video',
+    ('Poslovni razgovor', 'Još jedan video',
+     'storage\\videos\\5725960-uhd_3840_2160_30fps.mp4',
+     'storage\\thumbnails\\kancelarija.jpg',
+     1,
+     NOW() - INTERVAL '4 days 3 hours', 47),
+
+    ('Trening kod kuce', 'Još jedan video',
      'storage\\videos\\293085_small.mp4',
      'storage\\thumbnails\\trening.jpg',
      2,
-     NOW() - INTERVAL '3 days',0),
+     NOW() - INTERVAL '3 days', 0),
 
-    ('Primer 4', 'Još jedan video',
+    ('Priprema hrane', 'Jednostavan video pripreme hrane uz praktične savete i brz proces. Ideje za svakodnevne obroke i laganu kuhinju.',
      'storage\\videos\\2620043-uhd_3840_2160_25fps.mp4',
      'storage\\thumbnails\\tiganj.jpg',
      2,
-     NOW() - INTERVAL '2 days 6 hours',0),
+     NOW() - INTERVAL '2 days 6 hours', 0),
 
-    ('Primer 5', 'Još jedan video',
+    ('Potcast', 'Opušten razgovor u podcast studiju na zanimljivu temu.',
      'storage\\videos\\coverr-a-man-happily-talks-on-a-virtual-meeting-9706-1080p.mp4',
-     'storage\\thumbnails\\potcast.jpg',
+     'storage\\thumbnails\\potcast1.jpg',
      1,
-     NOW() - INTERVAL '1 day',0),
+     NOW() - INTERVAL '1 day', 0),
 
-    ('Primer 6', 'Još jedan video',
+    ('Voznja bicikla', 'Još jedan video',
      'storage\\videos\\3683308-uhd_3840_2160_24fps.mp4',
      'storage\\thumbnails\\bicikli.jpg',
      1,
-     NOW() - INTERVAL '20 hours',0),
+     NOW() - INTERVAL '20 hours', 12),
 
-    ('Primer 7', 'Još jedan video',
+    ('Kako nasminkati oci', 'Još jedan video',
      'storage\\videos\\3181592-uhd_3840_2160_25fps.mp4',
      'storage\\thumbnails\\sminka.jpg',
      2,
-     NOW() - INTERVAL '8 hours',0),
+     NOW() - INTERVAL '8 hours', 0),
 
-    ('Primer 8', 'Još jedan video',
-     'storage\\videos\\19540795-uhd_2160_3840_25fps.mp4',
-     'storage\\thumbnails\\4520325175bb3a5390da09564646869_w640.jpg',
+    ('Skijanje', 'Kratak video sa skijanja koji prikazuje zimsku atmosferu, sneg i uživanje na stazi. Savršen prikaz zimskog odmora i adrenalina.',
+     'storage\\videos\\4274798-uhd_3840_2160_25fps.mp4',
+     'storage\\thumbnails\\skijanje.jpg',
      2,
-     NOW() - INTERVAL '1 hour',0);
+     NOW() - INTERVAL '1 hour', 32),
 
--- komentari (pera=1, zika=2; video id pretpostavimo 1..)
+    ('Bozicna atmosfera', 'Topla praznična atmosfera uz svetla, ukrase i božićni duh. Kratak video koji dočarava mir i radost praznika.',
+     'storage\\videos\\855167-hd_1920_1080_30fps.mp4',
+     'storage\\thumbnails\\bozic.jpeg',
+     2,
+     NOW() - INTERVAL '1 hour', 126),
+
+    ('Avion', 'Pogled iz aviona tokom poletanja i sletanja, uz osećaj putovanja i slobode. Kratak klip savršen za ljubitelje avijacije.',
+     'storage\\videos\\3678380-hd_1920_1080_30fps.mp4',
+     'storage\\thumbnails\\avion.jpg',
+     2,
+     NOW() - INTERVAL '1 hour', 100),
+
+    ('Ajfelov toranj', 'Kratak video čuvenog Ajfelovog tornja u Parizu, snimljen iz grada. Ikona romantike i putovanja.',
+     'storage\\videos\\6355353-hd_1920_1080_30fps.mp4',
+     'storage\\thumbnails\\paris.jpg',
+     2,
+     NOW() - INTERVAL '1 hour', 254);
+
+
+
+-- ===== TAGOVI (ElementCollection tabela: video_tags) =====
+-- video_id pretpostavka: redosled insert-a daje id 1..12
+
+INSERT INTO video_tags (video_id, tag) VALUES
+                                           (1, 'piano'),
+                                           (1, 'music'),
+
+                                           (2, 'summer'),
+
+                                           (3, 'office'),
+                                           (3, 'work'),
+
+                                           (4, 'healthy'),
+                                           (4, 'trening'),
+                                           (4, 'odkuce'),
+
+                                           (5, 'ukusno'),
+                                           (5, 'brzo'),
+                                           (5, 'hrana'),
+
+                                           (6, 'talking'),
+                                           (6, 'people'),
+                                           (6, 'potcast'),
+
+                                           (7, 'bajs'),
+                                           (7, 'voznja'),
+
+                                           (8, 'sminka'),
+
+                                           (9, 'snow'),
+                                           (9, 'zima'),
+                                           (9, 'adrenalin'),
+
+                                           (10, 'home'),
+                                           (10, 'jelka'),
+                                           (10, 'bozic'),
+
+                                           (11, 'sletanje'),
+                                           (11, 'avion'),
+
+                                           (12, 'paris'),
+                                           (12, 'romance');
+
+
+
+-- ===== KOMENTARI =====
 INSERT INTO comments (text, video_id, user_id, created_at)
 VALUES
     ('Top video!', 1, 1, NOW()),
@@ -65,11 +136,10 @@ VALUES
     ('Nice', 2, 2, NOW());
 
 
--- lajkovi
-INSERT INTO video_likes (video_id, user_id,created_at)
+
+-- ===== LAJKOVI =====
+INSERT INTO video_likes (video_id, user_id, created_at)
 VALUES
-    (1, 1,NOW()),
-    (1, 2,NOW()),
-    (2, 2,NOW());
-
-
+    (1, 1, NOW()),
+    (1, 2, NOW()),
+    (2, 2, NOW());
