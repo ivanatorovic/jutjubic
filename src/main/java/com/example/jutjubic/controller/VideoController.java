@@ -1,5 +1,6 @@
 package com.example.jutjubic.controller;
 
+import com.example.jutjubic.dto.CommentCreateRequest;
 import com.example.jutjubic.dto.CommentPublicDto;
 import com.example.jutjubic.dto.VideoPublicDto;
 import com.example.jutjubic.mapper.DtoMapper;
@@ -8,6 +9,10 @@ import com.example.jutjubic.service.CommentService;
 import com.example.jutjubic.service.VideoService;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -96,9 +101,27 @@ public class VideoController {
     }
 
     @GetMapping("/{id}/comments")
-    public ResponseEntity<List<CommentPublicDto>> getComments(@PathVariable Long id) {
-        List<CommentPublicDto> comments = commentService.getForVideo(id);
-        return ResponseEntity.ok(comments);
+    public ResponseEntity<Page<CommentPublicDto>> getComments(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size
+    ) {
+        // zaštita da ti neko ne traži size=100000
+        if (size < 1) size = 1;
+        if (size > 100) size = 100;
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<CommentPublicDto> result = commentService.getForVideoPaged(id, pageable);
+        return ResponseEntity.ok(result);
+    }
+
+    @PostMapping("/{id}/comments")
+    public ResponseEntity<CommentPublicDto> addComment(
+            @PathVariable Long id,
+            @RequestBody CommentCreateRequest req
+    ) {
+        CommentPublicDto created = commentService.addComment(id, req.text());
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
 }
