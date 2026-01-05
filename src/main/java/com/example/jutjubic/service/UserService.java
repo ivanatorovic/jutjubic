@@ -75,7 +75,7 @@ public class UserService {
 
     // ================== REGISTER ==================
 
-    @Transactional
+
     public User register(RegisterRequest req) {
 
         // ===== VALIDACIJE =====
