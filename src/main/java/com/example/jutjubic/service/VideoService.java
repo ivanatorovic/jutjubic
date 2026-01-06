@@ -251,10 +251,10 @@ public class VideoService {
         }
     }
     public VideoPublicDto getDtoById(Long id) {
-        // uvecaj broj pregleda pri ulasku na stranicu videa
+
         registerView(id);
 
-        Video v = getById(id); // ponovo ucitaj da DTO ima azuran viewCount
+        Video v = getById(id);
         return DtoMapper.toVideoPublicDto(
                 v,
                 videoLikeService.countForVideo(v.getId()),
