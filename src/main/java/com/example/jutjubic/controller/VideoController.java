@@ -62,7 +62,7 @@ public class VideoController {
         return videoService.findAllNewestFirst();
     }
 
-    // 3) Jedan video po id (metadata)
+
     @GetMapping("/{id}")
     public ResponseEntity<VideoPublicDto> getById(@PathVariable Long id) {
         return ResponseEntity.ok(videoService.getDtoById(id));
@@ -89,7 +89,7 @@ public class VideoController {
                 .body(bytes);
     }
 
-    // 5) Najjednostavniji endpoint za puštanje mp4 (bez range/seek podrške)
+
     @GetMapping(value = "/{id}/stream", produces = "video/mp4")
     public ResponseEntity<Resource> streamVideo(@PathVariable Long id) {
         Video v = videoService.getById(id);

@@ -14,7 +14,7 @@ public class VideoRepositoryCustomImpl implements VideoRepositoryCustom {
 
     @Override
     public int incrementViewCount(Long videoId) {
-        // atomski inkrement na nivou baze
+
         return jdbcTemplate.update(
                 "UPDATE videos SET view_count = view_count + 1 WHERE id = ?",
                 videoId

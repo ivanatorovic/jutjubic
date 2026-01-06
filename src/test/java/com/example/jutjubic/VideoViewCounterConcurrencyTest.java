@@ -4,7 +4,9 @@ import com.example.jutjubic.model.Video;
 import com.example.jutjubic.repository.VideoRepository;
 import com.example.jutjubic.service.VideoService;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -14,28 +16,29 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 @SpringBootTest
-class VideoViewCounterConcurrencyTest {
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+class VideoViewCounterServiceTests {
 
-    @Autowired
-    private VideoService videoService;
+    @Autowired private VideoService videoService;
+    @Autowired private VideoRepository videoRepository;
 
-    @Autowired
-    private VideoRepository videoRepository;
+    private Long videoId;
 
-    @Test
-    void shouldIncrementViewCountCorrectlyWithConcurrentVisits() throws Exception {
-        // 1) napravi video koji prolazi NOT NULL constraint-e
+    @BeforeAll
+    void setUp() {
         Video v = new Video();
         v.setTitle("Test naslov");
         v.setDescription("Test opis");
         v.setTags(List.of("test"));
+
         v = videoRepository.saveAndFlush(v);
+        videoId = v.getId();
+    }
 
-        Long videoId = v.getId();
-
-        // 2) simulacija "istovremene posete"
-        int users = 50; // broj paralelnih korisnika
-        int visitsPerUser = 10; // koliko puta svaki korisnik "udje na stranicu"
+    @Test
+    void shouldIncrementViewsWithConcurrentVisits() throws Exception {
+        int users = 50;
+        int visitsPerUser = 10;
         int expected = users * visitsPerUser;
 
         ExecutorService pool = Executors.newFixedThreadPool(users);
@@ -48,9 +51,10 @@ class VideoViewCounterConcurrencyTest {
             pool.submit(() -> {
                 ready.countDown();
                 try {
-                    start.await(); // svi krenu u isto vreme
+                    start.await();
                     for (int j = 0; j < visitsPerUser; j++) {
-                        videoService.registerView(videoId); // +1 view (atomski UPDATE)
+
+                        videoService.getDtoById(videoId);
                     }
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
@@ -65,7 +69,6 @@ class VideoViewCounterConcurrencyTest {
         done.await();
         pool.shutdown();
 
-        // 3) proveri da nema "izgubljenih" inkremenata
         Video updated = videoRepository.findById(videoId).orElseThrow();
         Assertions.assertEquals(expected, updated.getViewCount());
     }

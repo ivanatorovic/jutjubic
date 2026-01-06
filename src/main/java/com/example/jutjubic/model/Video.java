@@ -12,32 +12,32 @@ public class Video {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;                     // primarni ključ
+    private Long id;
 
     @Column(nullable = false)
-    private String title;                // naslov videa
+    private String title;
 
     @Column(nullable = false, columnDefinition = "TEXT")
-    private String description;          // opis videa
+    private String description;
 
     @ElementCollection
     @CollectionTable(name = "video_tags", joinColumns = @JoinColumn(name = "video_id"))
     @Column(name = "tag")
-    private List<String> tags;           // lista tagova
+    private List<String> tags;
 
     @Column(name = "thumbnail_path")
-    private String thumbnailPath;        // putanja do thumbnail slike na disku
+    private String thumbnailPath;
 
     @Column(name = "video_path")
-    private String videoPath;            // putanja do video fajla na disku
+    private String videoPath;
 
     @Column(name = "size_mb")
-    private Long sizeMB;                 // veličina videa u MB
+    private Long sizeMB;
 
     @Column(name = "created_at")
-    private LocalDateTime createdAt = LocalDateTime.now(); // vreme kreiranja objave
+    private LocalDateTime createdAt = LocalDateTime.now();
 
-    private String location;             // opcionalna geolokacija
+    private String location;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -55,9 +55,9 @@ public class Video {
     private long viewCount = 0;
 
 
-    // ------------------ KONSTRUKTORI ------------------
 
-    public Video() {} // obavezan prazan konstruktor za JPA
+
+    public Video() {}
 
     public Video(String title, String description, List<String> tags,
                  String thumbnailPath, String videoPath, Long sizeMB, String location) {
@@ -70,7 +70,7 @@ public class Video {
         this.location = location;
     }
 
-    // ------------------ GETTERI I SETTERI ------------------
+
 
     public Long getId() { return id; }
 
