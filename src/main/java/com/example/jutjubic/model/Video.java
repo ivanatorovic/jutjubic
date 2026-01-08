@@ -54,13 +54,29 @@ public class Video {
     @Column(name = "view_count", nullable = false)
     private long viewCount = 0;
 
+    @Column(name = "scheduled", nullable = false)
+    private boolean scheduled = false;
 
+    @Column(name = "scheduled_at")
+    private LocalDateTime scheduledAt;
+
+    @Column(name = "thumbnail_compressed_path")
+    private String thumbnailCompressedPath;
 
 
     public Video() {}
 
-    public Video(String title, String description, List<String> tags,
-                 String thumbnailPath, String videoPath, Long sizeMB, String location) {
+    public Video(String title,
+                 String description,
+                 List<String> tags,
+                 String thumbnailPath,
+                 String videoPath,
+                 Long sizeMB,
+                 String location,
+                 boolean scheduled,
+                 LocalDateTime scheduledAt,
+                 User user) {
+
         this.title = title;
         this.description = description;
         this.tags = tags;
@@ -68,6 +84,9 @@ public class Video {
         this.videoPath = videoPath;
         this.sizeMB = sizeMB;
         this.location = location;
+        this.scheduled = scheduled;
+        this.scheduledAt = scheduledAt;
+        this.user = user;
     }
 
 

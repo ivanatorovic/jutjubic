@@ -7,79 +7,91 @@ VALUES
 
 
 -- ===== VIDEOS (BEZ tag kolone!) =====
-INSERT INTO videos (title, description, video_path, thumbnail_path, user_id, created_at, view_count)
+INSERT INTO videos (title, description, video_path, thumbnail_path, user_id, created_at, view_count, scheduled, scheduled_at)
 VALUES
     ('Nauci da sviras klavir', 'opis',
      'storage\\videos\\14247790-hd_1920_1080_30fps.mp4',
      'storage\\thumbnails\\klavir.jpg',
      1,
-     NOW() - INTERVAL '5 days', 0),
+     NOW() - INTERVAL '5 days', 0,
+     false, NULL),
 
     ('Umirujuce more', 'Letnji video sa mora koji prikazuje plažu, talase i opuštenu atmosferu. Kratak klip koji dočarava letnji odmor i sunce.',
      'storage\\videos\\855633-hd_1920_1080_25fps.mp4',
      'storage\\thumbnails\\gradska_plaza2.jpg',
      1,
-     NOW() - INTERVAL '4 days 3 hours', 0),
+     NOW() - INTERVAL '4 days 3 hours', 0,
+     false, NULL),
 
     ('Poslovni razgovor', 'Još jedan video',
      'storage\\videos\\5725960-uhd_3840_2160_30fps.mp4',
      'storage\\thumbnails\\kancelarija.jpg',
      1,
-     NOW() - INTERVAL '4 days 3 hours', 47),
+     NOW() - INTERVAL '4 days 3 hours', 47,
+     false, NULL),
 
     ('Trening kod kuce', 'Još jedan video',
      'storage\\videos\\293085_small.mp4',
      'storage\\thumbnails\\trening.jpg',
      2,
-     NOW() - INTERVAL '3 days', 0),
+     NOW() - INTERVAL '3 days', 0,
+     false, NULL),
 
     ('Priprema hrane', 'Jednostavan video pripreme hrane uz praktične savete i brz proces. Ideje za svakodnevne obroke i laganu kuhinju.',
      'storage\\videos\\2620043-uhd_3840_2160_25fps.mp4',
      'storage\\thumbnails\\tiganj.jpg',
      2,
-     NOW() - INTERVAL '2 days 6 hours', 0),
+     NOW() - INTERVAL '2 days 6 hours', 0,
+     false, NULL),
 
     ('Potcast', 'Opušten razgovor u podcast studiju na zanimljivu temu.',
      'storage\\videos\\coverr-a-man-happily-talks-on-a-virtual-meeting-9706-1080p.mp4',
      'storage\\thumbnails\\potcast1.jpg',
      1,
-     NOW() - INTERVAL '1 day', 0),
+     NOW() - INTERVAL '1 day', 0,
+     false, NULL),
 
     ('Voznja bicikla', 'Još jedan video',
      'storage\\videos\\3683308-uhd_3840_2160_24fps.mp4',
      'storage\\thumbnails\\bicikli.jpg',
      1,
-     NOW() - INTERVAL '20 hours', 12),
+     NOW() - INTERVAL '20 hours', 12,
+     false, NULL),
 
     ('Kako nasminkati oci', 'Još jedan video',
      'storage\\videos\\3181592-uhd_3840_2160_25fps.mp4',
      'storage\\thumbnails\\sminka.jpg',
      2,
-     NOW() - INTERVAL '8 hours', 0),
+     NOW() - INTERVAL '8 hours', 0,
+     false, NULL),
 
     ('Skijanje', 'Kratak video sa skijanja koji prikazuje zimsku atmosferu, sneg i uživanje na stazi. Savršen prikaz zimskog odmora i adrenalina.',
      'storage\\videos\\4274798-uhd_3840_2160_25fps.mp4',
      'storage\\thumbnails\\skijanje.jpg',
      2,
-     NOW() - INTERVAL '1 hour', 32),
+     NOW() - INTERVAL '1 hour', 32,
+     false, NULL),
 
     ('Bozicna atmosfera', 'Topla praznična atmosfera uz svetla, ukrase i božićni duh. Kratak video koji dočarava mir i radost praznika.',
      'storage\\videos\\855167-hd_1920_1080_30fps.mp4',
      'storage\\thumbnails\\bozic.jpeg',
      2,
-     NOW() - INTERVAL '1 hour', 126),
+     NOW() - INTERVAL '1 hour', 126,
+     false, NULL),
 
     ('Avion', 'Pogled iz aviona tokom poletanja i sletanja, uz osećaj putovanja i slobode. Kratak klip savršen za ljubitelje avijacije.',
      'storage\\videos\\3678380-hd_1920_1080_30fps.mp4',
      'storage\\thumbnails\\avion.jpg',
      2,
-     NOW() - INTERVAL '1 hour', 100),
+     NOW() - INTERVAL '1 hour', 100,
+     false, NULL),
 
     ('Ajfelov toranj', 'Kratak video čuvenog Ajfelovog tornja u Parizu, snimljen iz grada. Ikona romantike i putovanja.',
      'storage\\videos\\6355353-hd_1920_1080_30fps.mp4',
      'storage\\thumbnails\\paris.jpg',
      2,
-     NOW() - INTERVAL '1 hour', 254);
+     NOW() - INTERVAL '1 hour', 254,
+     false, NULL);
 
 
 
