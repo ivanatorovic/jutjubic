@@ -2,7 +2,7 @@ package com.example.jutjubic.dto;
 
 import java.util.List;
 
-// Obični DTO za podatke koji nisu fajlovi
+
 public class VideoUploadRequest {
 
     private String title;

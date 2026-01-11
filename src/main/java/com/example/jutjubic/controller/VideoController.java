@@ -40,7 +40,7 @@ public class VideoController {
         this.videoLikeService = videoLikeService;
     }
 
-    // 1) Upload (multipart/form-data)
+
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Video> uploadVideo(
             @RequestPart("info") String infoJson,
@@ -55,7 +55,7 @@ public class VideoController {
     }
 
 
-    // 2) Lista svih video objava (da drugi korisnici vide novu objavu)
+
 
     @GetMapping
     public List<VideoPublicDto> getAll() {
@@ -69,12 +69,12 @@ public class VideoController {
     }
 
 
-    // 4) Vrati thumbnail bytes (ovo koristi cache u VideoService)
+
     @GetMapping(value = "/{id}/thumbnail")
     public ResponseEntity<byte[]> getThumbnail(@PathVariable Long id) {
         byte[] bytes = videoService.getThumbnailBytes(id);
 
-        // probaj da odrediš content-type po ekstenziji, ako može
+
         Video v = videoService.getById(id);
         MediaType mediaType = MediaType.IMAGE_JPEG;
         if (v.getThumbnailPath() != null) {
@@ -116,7 +116,6 @@ public class VideoController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size
     ) {
-        // zaštita da ti neko ne traži size=100000
         if (size < 1) size = 1;
         if (size > 100) size = 100;
 

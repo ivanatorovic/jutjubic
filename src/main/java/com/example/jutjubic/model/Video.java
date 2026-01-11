@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "videos") // ime tabele u bazi
+@Table(name = "videos")
 public class Video {
 
     @Id
@@ -37,6 +37,7 @@ public class Video {
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    @Column(name = "location")
     private String location;
 
     @ManyToOne(fetch = FetchType.LAZY)
