@@ -19,7 +19,6 @@ public class UserController {
         this.userService = userService;
     }
 
-    // GET /users/{id} -> prikaz korisnika (javni profil)
     @GetMapping("/{id}")
     public UserPublicDto getById(@PathVariable Long id) {
         User u = userService.findById(id);
