@@ -17,21 +17,21 @@ public class TranscodeJob {
 
     @Id
     @Column(name = "job_id", nullable = false, updatable = false)
-    private UUID jobId;   // PK -> idempotentnost (sprečava duplu obradu iste poruke)
+    private UUID jobId;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "video_id", nullable = false)
-    private Video video;  // veza na postojeći Video model
+    private Video video;
 
     @Column(name = "input_path", nullable = false, length = 500)
-    private String inputPath; // isto što i video.videoPath (originalni fajl)
+    private String inputPath;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
     private Status status = Status.PENDING;
 
     @Column(name = "consumer_id", length = 120)
-    private String consumerId; // npr. "consumer-1" / thread name, čisto radi evidencije
+    private String consumerId;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
@@ -55,8 +55,6 @@ public class TranscodeJob {
         this.createdAt = LocalDateTime.now();
     }
 
-    // ===== helperi (korisno u consumeru) =====
-
     public void markProcessing(String consumerId) {
         this.status = Status.PROCESSING;
         this.consumerId = consumerId;
@@ -75,7 +73,6 @@ public class TranscodeJob {
         this.finishedAt = LocalDateTime.now();
     }
 
-    // ===== getteri/setteri =====
 
     public UUID getJobId() { return jobId; }
     public void setJobId(UUID jobId) { this.jobId = jobId; }

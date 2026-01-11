@@ -36,10 +36,6 @@ public class CommentService {
         this.userRepository = userRepository;
     }
 
-    /**
-     * ✅ Keš za paginirane komentare:
-     * key uključuje videoId + page + size + sort
-     */
     @Cacheable(
             cacheNames = "videoComments",
             key = "#videoId + ':' + #pageable.pageNumber + ':' + #pageable.pageSize + ':' + #pageable.sort.toString()"
@@ -54,11 +50,6 @@ public class CommentService {
         return commentRepository.countByVideoId(videoId);
     }
 
-    /**
-     * ✅ Kad dodaš komentar:
-     * - count za taj videoId obriši ciljano (key = videoId)
-     * - paginirani keš obriši ceo (allEntries=true), jer se pomeraju strane
-     */
     @Caching(evict = {
             @CacheEvict(cacheNames = "videoCommentCount", key = "#videoId"),
             @CacheEvict(cacheNames = "videoComments", allEntries = true)
