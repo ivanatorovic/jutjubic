@@ -52,21 +52,18 @@ public class AuthenticationController {
             return ResponseEntity.ok(new UserTokenState(jwt, expiresIn));
 
         } catch (DisabledException ex) {
-            // nalog postoji, ali nije aktiviran
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
                     "Nalog nije aktiviran. Proverite mejl i kliknite na aktivacioni link."
             );
 
         } catch (BadCredentialsException ex) {
-            // pogrešna lozinka (ili email) -> 401
             throw new ResponseStatusException(
                     HttpStatus.UNAUTHORIZED,
                     "Pogrešan email ili lozinka."
             );
 
         } catch (AuthenticationException ex) {
-            // bilo koja druga auth greška
             throw new ResponseStatusException(
                     HttpStatus.UNAUTHORIZED,
                     "Prijava nije uspela."

@@ -58,10 +58,9 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
                     }
 
                 } catch (UsernameNotFoundException ex) {
-                    // ✅ token postoji, ali korisnik više ne postoji u bazi
-                    // tretiraj kao anonymous (NE 401)
+
                 } catch (Exception ex) {
-                    // ✅ bilo šta drugo (token pokvaren, parse error, itd.)
+
                 }
             }
         }

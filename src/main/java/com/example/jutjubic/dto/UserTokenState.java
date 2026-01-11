@@ -1,6 +1,6 @@
 package com.example.jutjubic.dto;
 
-// DTO koji enkapsulira JWT i njegovo trajanje
+
 public class UserTokenState {
 
     private String accessToken;

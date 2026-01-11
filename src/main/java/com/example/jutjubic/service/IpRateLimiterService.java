@@ -16,9 +16,9 @@ public class IpRateLimiterService {
 
     public IpRateLimiterService() {
         RateLimiterConfig config = RateLimiterConfig.custom()
-                .limitForPeriod(5)                         // 5 pokušaja
-                .limitRefreshPeriod(Duration.ofMinutes(1))  // po minuti
-                .timeoutDuration(Duration.ZERO)             // ne čekaj, odmah odbij
+                .limitForPeriod(5)
+                .limitRefreshPeriod(Duration.ofMinutes(1))
+                .timeoutDuration(Duration.ZERO)
                 .build();
 
         this.registry = RateLimiterRegistry.of(config);

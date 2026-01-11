@@ -15,13 +15,13 @@ public class PopularityRun {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // vreme kada je pipeline pokrenut (Load deo)
+
     @Column(name = "run_at", nullable = false)
     private LocalDateTime runAt = LocalDateTime.now();
 
     @JsonIgnore
     @OneToMany(mappedBy = "run", cascade = CascadeType.ALL, orphanRemoval = true)
-    @OrderBy("rank ASC") // da uvek dobiješ 1,2,3
+    @OrderBy("rank ASC")
     private List<PopularityRunItem> items = new ArrayList<>();
 
     public PopularityRun() {}
@@ -30,7 +30,7 @@ public class PopularityRun {
         this.runAt = runAt;
     }
 
-    // helper da lakše dodaš item i održiš vezu
+
     public void addItem(PopularityRunItem item) {
         items.add(item);
         item.setRun(this);

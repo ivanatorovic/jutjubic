@@ -2,7 +2,7 @@ package com.example.jutjubic.config;
 
 import com.example.jutjubic.security.LoginRateLimitFilter;
 import com.example.jutjubic.security.TokenAuthenticationFilter;
-import com.example.jutjubic.security.auth.RestAuthenticationEntryPoint;
+import com.example.jutjubic.security.RestAuthenticationEntryPoint;
 import com.example.jutjubic.util.TokenUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -56,10 +56,10 @@ public class WebSecurityConfig {
                 .anyRequest().authenticated()
         );
 
-        // 1) Token filter pre BasicAuthenticationFilter
+
         http.addFilterBefore(tokenAuthenticationFilter, BasicAuthenticationFilter.class);
 
-        // 2) Rate limit filter pre token filtera (garantovan redosled)
+
         http.addFilterBefore(loginRateLimitFilter, TokenAuthenticationFilter.class);
 
         return http.build();

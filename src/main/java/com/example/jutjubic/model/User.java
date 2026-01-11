@@ -4,22 +4,22 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "users")   // izbegavamo ime "user" jer je rezervisana reč u PostgreSQL-u
+@Table(name = "users")
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // prijava ide preko email + password
+
     @Column(nullable = false, unique = true)
     private String email;
 
-    // korisničko ime koje se prikazuje na profilu
+
     @Column(nullable = false, unique = true)
     private String username;
 
-    // OVDE ćeš čuvati HASH lozinke, ne plain tekst
+
     @Column(nullable = false)
     private String password;
 
@@ -32,18 +32,18 @@ public class User {
     @Column(nullable = false)
     private String address;
 
-    // nalog nije aktivan dok ne klikne na mail link
+
     @Column(nullable = false)
     private boolean enabled = false;
 
-    // token koji šalješ u mailu za aktivaciju (može biti UUID)
+
     @Column(name = "activation_token")
     private String activationToken;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    // ===== konstruktori =====
+
 
     public User() {
     }
@@ -52,13 +52,13 @@ public class User {
                 String firstName, String lastName, String address) {
         this.email = email;
         this.username = username;
-        this.password = password;  // u praksi ovde već dolazi hash
+        this.password = password;
         this.firstName = firstName;
         this.lastName = lastName;
         this.address = address;
     }
 
-    // ===== getteri i setteri =====
+
 
     public Long getId() {
         return id;
@@ -85,7 +85,7 @@ public class User {
     }
 
     public void setPassword(String password) {
-        this.password = password; // kasnije ovde staviš hash
+        this.password = password;
     }
 
     public String getFirstName() {

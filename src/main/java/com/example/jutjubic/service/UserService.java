@@ -49,7 +49,7 @@ public class UserService {
         this.commentRepository = commentRepository;
     }
 
-    // ================== READ ==================
+
 
     public User findByEmail(String email) {
         return userRepository.findByEmail(email)
@@ -73,12 +73,12 @@ public class UserService {
         return userRepository.findAll();
     }
 
-    // ================== REGISTER ==================
+
 
 
     public User register(RegisterRequest req) {
 
-        // ===== VALIDACIJE =====
+
 
         if (req.email == null || req.email.isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email je obavezan");
@@ -108,7 +108,7 @@ public class UserService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Korisničko ime je već zauzeto");
         }
 
-        // ===== KREIRANJE KORISNIKA =====
+
 
         User user = new User();
         user.setEmail(req.email);
@@ -118,26 +118,26 @@ public class UserService {
         user.setLastName(req.lastName);
         user.setAddress(req.address);
 
-        // nalog još nije aktivan
+
         user.setEnabled(false);
 
-        // generisanje aktivacionog tokena
+
         String token = UUID.randomUUID().toString();
         user.setActivationToken(token);
 
-        // 1️⃣ snimi u bazu
+
         User saved = userRepository.save(user);
 
-        // 2️⃣ pošalji aktivacioni mail
+
         String activationLink = activationUrl + "?token=" + token;
         emailService.sendActivationEmail(saved.getEmail(), activationLink);
 
         return saved;
     }
 
-    // ================== ACTIVATE ACCOUNT ==================
 
-    @Transactional
+
+
     public void activateAccount(String token) {
 
         User user = userRepository.findByActivationToken(token)
@@ -148,7 +148,7 @@ public class UserService {
                         ));
 
         if (user.isEnabled()) {
-            // već aktiviran – nema potrebe za greškom
+
             return;
         }
 
@@ -157,7 +157,7 @@ public class UserService {
         userRepository.save(user);
     }
 
-    // ================== USER VIDEOS ==================
+
 
     public List<VideoPublicDto> getUserVideos(Long userId) {
 
