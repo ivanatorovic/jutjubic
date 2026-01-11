@@ -5,6 +5,8 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.mail.MailException;
+
 
 @Service
 public class EmailService {
@@ -18,7 +20,13 @@ public class EmailService {
         this.mailSender = mailSender;
     }
 
-    public void sendActivationEmail(String to, String activationLink) {
+    @Async
+    public void sendActivationEmail(String to, String activationLink) throws MailException {
+
+        System.out.println(
+                "Async email thread id: " + Thread.currentThread().getId()
+        );
+
         SimpleMailMessage msg = new SimpleMailMessage();
         msg.setFrom(from);
         msg.setTo(to);
@@ -31,5 +39,8 @@ public class EmailService {
         );
 
         mailSender.send(msg);
+
+        System.out.println("Aktivacioni email poslat!");
     }
+
 }

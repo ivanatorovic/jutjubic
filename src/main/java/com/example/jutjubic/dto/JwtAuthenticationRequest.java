@@ -1,6 +1,6 @@
 package com.example.jutjubic.dto;
 
-// DTO za login
+
 public class JwtAuthenticationRequest {
 
     private String email;
