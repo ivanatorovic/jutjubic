@@ -1,5 +1,4 @@
 package com.example.jutjubic.service;
-
 import com.example.jutjubic.dto.VideoPublicDto;
 import com.example.jutjubic.dto.VideoUploadRequest;
 import com.example.jutjubic.mapper.DtoMapper;
@@ -24,8 +23,6 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
-
-
 import java.io.IOException;
 import java.nio.file.*;
 import java.time.LocalDateTime;
@@ -37,11 +34,7 @@ public class VideoService {
     private static final Logger LOG =
             org.slf4j.LoggerFactory.getLogger(VideoService.class);
 
-
-
-
     private final UserRepository userRepository;
-
     private final VideoRepository videoRepository;
     private final ObjectMapper objectMapper;
     private final VideoLikeService videoLikeService;
@@ -64,11 +57,7 @@ public class VideoService {
         this.userRepository = userRepository;
     }
 
-    /**
-     * Transakciono kreiranje video objave.
-     * - DB operacije su u transakciji (rollback na RuntimeException)
-     * - Fajlovi na disku NISU deo transakcije, pa ih ručno brišemo u catch-u.
-     */
+
     @Transactional
     public Video uploadVideo(String infoJson,
                              MultipartFile thumbnailFile,
@@ -76,7 +65,6 @@ public class VideoService {
 
         long start = System.currentTimeMillis();
 
-        // 1) Parsiranje JSON-a
         final VideoUploadRequest info;
         try {
             info = objectMapper.readValue(infoJson, VideoUploadRequest.class);
@@ -84,7 +72,7 @@ public class VideoService {
             throw new BadRequestException("Nevalidan JSON u polju 'info'.", e);
         }
 
-        // 2) Validacije
+
         if (videoFile == null || videoFile.isEmpty()) {
             throw new BadRequestException("Video fajl je obavezan.");
         }
@@ -98,13 +86,12 @@ public class VideoService {
             throw new BadRequestException("Video fajl je veći od 200MB.");
         }
 
-        // Ako ti specifikacija traži thumbnail kao obavezan:
-        // (ako želiš da bude strict po zahtevu 3.3)
+
         if (thumbnailFile == null || thumbnailFile.isEmpty()) {
             throw new BadRequestException("Thumbnail slika je obavezna.");
         }
 
-        // ✅ Validacije za info polja (title, description, tags)
+
         if (info.getTitle() == null || info.getTitle().trim().isEmpty()
                 || info.getDescription() == null || info.getDescription().trim().isEmpty()
                 || info.getTags() == null || info.getTags().isEmpty()
@@ -112,20 +99,18 @@ public class VideoService {
             throw new BadRequestException("Title, opis i tagovi moraju biti popunjeni.");
         }
 
-
-        // Ove promenljive čuvamo da bismo mogli da obrišemo fajlove ako pukne posle snimanja
         String savedVideoPath = null;
         String savedThumbPath = null;
 
         try {
-            // 3) Snimi fajlove na disk
+
             savedVideoPath = saveFile(videoFile, VIDEO_DIR);
             savedThumbPath = saveFile(thumbnailFile, THUMB_DIR);
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             String principalName = auth.getName();
             var uploader = userRepository.findByEmail(principalName)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Korisnik ne postoji."));
-            // 4) Kreiraj entitet
+
             Video video = new Video();
             video.setTitle(info.getTitle());
             video.setDescription(info.getDescription());
@@ -137,10 +122,14 @@ public class VideoService {
             video.setCreatedAt(LocalDateTime.now());
             video.setUser(uploader);
 
-            // 5) Upis u bazu (u transakciji)
+
             Video saved = videoRepository.save(video);
+            boolean testRollback = false;
+            if (testRollback) {
+                throw new RuntimeException("Test rollback");
+            }
             //Thread.sleep(11_000);
-            // 6) Test "upload traje predugo" -> izazovi rollback
+
             long duration = System.currentTimeMillis() - start;
             if (duration > 10_000) {
                 LOG.error("Upload je trajao predugo ({} ms) → rollback", duration);
@@ -150,11 +139,10 @@ public class VideoService {
             return saved;
 
         } catch (Exception e) {
-            // 7) RUČNO brisanje fajlova, da rollback bude "kompletan"
             safeDelete(savedVideoPath);
             safeDelete(savedThumbPath);
 
-            // DB rollback će se desiti jer bacamo RuntimeException
+
             throw (e instanceof RuntimeException re) ? re
                     : new InternalException("Greška tokom upload-a -> rollback aktiviran!", e);
         }
@@ -169,10 +157,7 @@ public class VideoService {
                 .orElseThrow(() -> new NotFoundException("Video sa id=" + id + " ne postoji."));
     }
 
-    /**
-     * Thumbnail bytes se keširaju u memoriji.
-     * Prvi put čita sa diska -> posle vraća iz cache-a (bez diska).
-     */
+
     @Cacheable(cacheNames = "thumbnails", key = "#id")
     public byte[] getThumbnailBytes(Long id) {
         Video v = getById(id);
@@ -182,8 +167,6 @@ public class VideoService {
         }
 
         try {
-            // OVO je 'cache miss' putanja (jer se metoda poziva samo kad nema u cache-u)
-            // Ako je iz cache-a, metoda se uopšte ne izvrši.
             org.slf4j.LoggerFactory.getLogger(VideoService.class)
                     .info("Reading thumbnail from disk for videoId={}", id);
 
@@ -194,16 +177,13 @@ public class VideoService {
     }
 
 
-    /**
-     * Ako ikad budeš menjala thumbnail nekog videa, pozovi ovu metodu (ili napravi endpoint)
-     * da očisti keš.
-     */
+
     @CacheEvict(cacheNames = "thumbnails", key = "#id")
     public void evictThumbnailCache(Long id) {
-        // namerno prazno - anotacija radi posao
+
     }
 
-    // ----------------- helpers -----------------
+
 
     private String saveFile(MultipartFile file, String directory) throws IOException {
         Path dirPath = Paths.get(directory);
@@ -218,7 +198,7 @@ public class VideoService {
         String filename = UUID.randomUUID() + extension;
         Path fullPath = dirPath.resolve(filename);
 
-        // REPLACE_EXISTING da ti ne pukne ako ikad (teoretski) dođe do istog imena
+
         Files.copy(file.getInputStream(), fullPath, StandardCopyOption.REPLACE_EXISTING);
 
         return fullPath.toString();
@@ -229,7 +209,7 @@ public class VideoService {
         try {
             Files.deleteIfExists(Paths.get(pathStr));
         } catch (IOException ignored) {
-            // namerno ignorišemo da ne prekrije originalnu grešku
+
         }
     }
 
