@@ -22,7 +22,7 @@ public class LoginRateLimitFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        // Tvoj login endpoint je: POST /api/auth/login
+
         String path = request.getServletPath();
         return !(path.equals("/api/auth/login") && "POST".equalsIgnoreCase(request.getMethod()));
     }
@@ -47,7 +47,7 @@ public class LoginRateLimitFilter extends OncePerRequestFilter {
     }
 
     private String extractClientIp(HttpServletRequest request) {
-        // Ako si iza proxy-ja, X-Forwarded-For može sadržati stvarni IP
+
         String xff = request.getHeader("X-Forwarded-For");
         if (xff != null && !xff.isBlank()) {
             return xff.split(",")[0].trim();
