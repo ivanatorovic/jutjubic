@@ -56,10 +56,10 @@ public class WebSecurityConfig {
                 .anyRequest().authenticated()
         );
 
-        // 1) Token filter pre BasicAuthenticationFilter
+
         http.addFilterBefore(tokenAuthenticationFilter, BasicAuthenticationFilter.class);
 
-        // 2) Rate limit filter pre token filtera (garantovan redosled)
+
         http.addFilterBefore(loginRateLimitFilter, TokenAuthenticationFilter.class);
 
         return http.build();

@@ -19,7 +19,7 @@ public class TokenUtils {
     public TokenUtils(@Value("${jwt.secret}") String secret,
                       @Value("${jwt.expiration-seconds}") long expiresInSeconds) {
 
-        // HS256 zahteva dovoljno dug secret (bar 32 bajta)
+
         this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         this.expiresInSeconds = expiresInSeconds;
     }
@@ -36,7 +36,7 @@ public class TokenUtils {
                 .compact();
     }
 
-    // Koristi se u filteru - bez bacanja exception-a
+
     public String getEmailFromTokenSafe(String token) {
         try {
             return parse(token).getBody().getSubject();

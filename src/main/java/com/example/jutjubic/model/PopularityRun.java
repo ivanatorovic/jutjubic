@@ -30,7 +30,7 @@ public class PopularityRun {
         this.runAt = runAt;
     }
 
-    // helper da lakše dodaš item i održiš vezu
+
     public void addItem(PopularityRunItem item) {
         items.add(item);
         item.setRun(this);

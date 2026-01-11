@@ -7,6 +7,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 
 @SpringBootApplication
 @EnableCaching
+@EnableAsync
 public class JutjubicApplication {
 
 	public static void main(String[] args) {
