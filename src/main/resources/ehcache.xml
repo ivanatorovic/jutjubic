@@ -4,7 +4,7 @@
 
     <cache-template name="default">
         <expiry>
-            <!-- npr. drži thumbnail 10 minuta -->
+
             <ttl unit="minutes">10</ttl>
         </expiry>
 
@@ -22,7 +22,7 @@
         </listeners>
 
         <resources>
-            <!-- ograniči broj thumbnail-a u memoriji -->
+
             <heap>200</heap>
             <offheap unit="MB">20</offheap>
         </resources>
@@ -30,7 +30,7 @@
 
     <cache alias="thumbnails" uses-template="default">
         <key-type>java.lang.Long</key-type>
-        <value-type>[B</value-type> <!-- byte[] -->
+        <value-type>[B</value-type>
         <resources>
             <heap>200</heap>
         </resources>
@@ -44,7 +44,7 @@
         </resources>
     </cache>
 
-    <!-- count ostaje Long->Long -->
+
     <cache alias="videoCommentCount" uses-template="default">
         <key-type>java.lang.Long</key-type>
         <value-type>java.lang.Long</value-type>
