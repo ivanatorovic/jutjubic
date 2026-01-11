@@ -1,4 +1,4 @@
-package com.example.jutjubic.security.auth;
+package com.example.jutjubic.security;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

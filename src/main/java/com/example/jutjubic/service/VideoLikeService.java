@@ -30,23 +30,23 @@ public class VideoLikeService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Video ne postoji"));
     }
 
-    @Transactional(readOnly = true)
+
     public long countForVideo(Long videoId) {
         return videoLikeRepository.countByVideoId(videoId);
     }
 
-    @Transactional(readOnly = true)
+
     public boolean isLiked(Long videoId, String userEmail) {
         User user = userService.findByEmail(userEmail);
         return videoLikeRepository.existsByVideo_IdAndUser_Id(videoId, user.getId());
     }
 
-    @Transactional
+
     public long like(Long videoId, String userEmail) {
         User user = userService.findByEmail(userEmail);
 
         if (videoLikeRepository.existsByVideo_IdAndUser_Id(videoId, user.getId())) {
-            return countForVideo(videoId); // već lajkovan
+            return countForVideo(videoId);
         }
 
         Video video = getVideoOrThrow(videoId);
@@ -54,7 +54,7 @@ public class VideoLikeService {
         return countForVideo(videoId);
     }
 
-    @Transactional
+
     public long unlike(Long videoId, String userEmail) {
         User user = userService.findByEmail(userEmail);
 

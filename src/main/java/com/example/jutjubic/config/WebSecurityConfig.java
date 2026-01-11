@@ -2,7 +2,7 @@ package com.example.jutjubic.config;
 
 import com.example.jutjubic.security.LoginRateLimitFilter;
 import com.example.jutjubic.security.TokenAuthenticationFilter;
-import com.example.jutjubic.security.auth.RestAuthenticationEntryPoint;
+import com.example.jutjubic.security.RestAuthenticationEntryPoint;
 import com.example.jutjubic.util.TokenUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

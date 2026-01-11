@@ -85,7 +85,7 @@ public class VideoController {
 
         return ResponseEntity.ok()
                 .contentType(mediaType)
-                .cacheControl(CacheControl.noCache()) // može i maxAge ako želiš
+                .cacheControl(CacheControl.noCache())
                 .body(bytes);
     }
 
@@ -138,7 +138,7 @@ public class VideoController {
         if (auth == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Morate biti ulogovani");
         }
-        return videoLikeService.like(id, auth.getName()); // auth.getName() == email kod tebe
+        return videoLikeService.like(id, auth.getName());
     }
 
     @DeleteMapping("/{id}/like")
@@ -151,7 +151,7 @@ public class VideoController {
 
     @GetMapping("/{id}/like")
     public boolean isLiked(@PathVariable Long id, Authentication auth) {
-        if (auth == null) return false; // anon user
+        if (auth == null) return false;
         return videoLikeService.isLiked(id, auth.getName());
     }
 
