@@ -65,6 +65,13 @@ public class Video {
     private String thumbnailCompressedPath;
 
 
+    @Column(name = "latitude")
+    private Double latitude;
+
+    @Column(name = "longitude")
+    private Double longitude;
+
+
     public Video() {}
 
     public Video(String title,
@@ -76,7 +83,9 @@ public class Video {
                  String location,
                  boolean scheduled,
                  LocalDateTime scheduledAt,
-                 User user) {
+                 User user,
+                 Double latitude,
+                 Double longitude) {
 
         this.title = title;
         this.description = description;
@@ -109,6 +118,21 @@ public class Video {
     public void setDescription(String description) { this.description = description; }
 
     public List<String> getTags() { return tags; }
+
+    public Double getLatitude(){
+        return latitude;
+    }
+    public Double getLongitude(){
+        return longitude;
+    }
+
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
+    }
+
+    public void setLongitude(Double longitude) {
+        this.longitude = longitude;
+    }
 
     public void setTags(List<String> tags) { this.tags = tags; }
 
