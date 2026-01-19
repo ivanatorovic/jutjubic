@@ -20,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
+import jakarta.servlet.http.HttpServletRequest;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -45,12 +46,13 @@ public class VideoController {
     public ResponseEntity<Video> uploadVideo(
             @RequestPart("info") String infoJson,
             @RequestPart("thumbnail") MultipartFile thumbnail,
-            @RequestPart("video") MultipartFile videoFile
+            @RequestPart("video") MultipartFile videoFile,
+            HttpServletRequest request
 
     ) {
 
 
-        Video video = videoService.uploadVideo(infoJson, thumbnail, videoFile);
+        Video video = videoService.uploadVideo(infoJson, thumbnail, videoFile, request);
         return ResponseEntity.ok(video);
     }
 

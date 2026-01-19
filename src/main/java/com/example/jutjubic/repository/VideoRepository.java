@@ -8,6 +8,7 @@ import java.util.List;
 
 public interface VideoRepository extends JpaRepository<Video, Long>, VideoRepositoryCustom {
     List<Video> findByUserIdOrderByCreatedAtDesc(Long userId);
+    List<Video> findTop200ByOrderByCreatedAtDesc();
 
 
 }
