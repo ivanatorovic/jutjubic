@@ -23,6 +23,8 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import jakarta.servlet.http.HttpServletRequest;
+
 import java.io.IOException;
 import java.nio.file.*;
 import java.time.LocalDateTime;
@@ -39,6 +41,8 @@ public class VideoService {
     private final ObjectMapper objectMapper;
     private final VideoLikeService videoLikeService;
     private final CommentService commentService;
+    private final IpGeoService ipGeoService;
+
 
     private static final long MAX_VIDEO_SIZE_BYTES = 200L * 1024 * 1024;
 
@@ -49,19 +53,22 @@ public class VideoService {
                         ObjectMapper objectMapper,
                         VideoLikeService videoLikeService,
                         CommentService commentService,
-                        UserRepository userRepository) {
+                        UserRepository userRepository,
+                        IpGeoService ipGeoService) {
         this.videoRepository = videoRepository;
         this.objectMapper = objectMapper;
         this.videoLikeService = videoLikeService;
         this.commentService = commentService;
         this.userRepository = userRepository;
+        this.ipGeoService = ipGeoService;
     }
 
 
     @Transactional
     public Video uploadVideo(String infoJson,
                              MultipartFile thumbnailFile,
-                             MultipartFile videoFile) {
+                             MultipartFile videoFile,
+                             HttpServletRequest request) {
 
         long start = System.currentTimeMillis();
 
@@ -121,6 +128,19 @@ public class VideoService {
             video.setSizeMB(videoFile.getSize() / 1024 / 1024);
             video.setCreatedAt(LocalDateTime.now());
             video.setUser(uploader);
+            // ✅ upiši koordinate ako su poslate
+            // ✅ GEO: browser ako ima, inače IP fallback (S2 logika za upload)
+            if (info.getLatitude() != null && info.getLongitude() != null) {
+                video.setLatitude(info.getLatitude());
+                video.setLongitude(info.getLongitude());
+            } else {
+                String ip = extractClientIp(request);
+                IpGeoService.GeoPoint p = ipGeoService.locate(ip);
+                video.setLatitude(p.lat());
+                video.setLongitude(p.lon());
+            }
+
+
 
 
             Video saved = videoRepository.save(video);
@@ -242,6 +262,14 @@ public class VideoService {
         );
     }
 
+
+    private String extractClientIp(HttpServletRequest request) {
+        String xff = request.getHeader("X-Forwarded-For");
+        if (xff != null && !xff.isBlank()) {
+            return xff.split(",")[0].trim();
+        }
+        return request.getRemoteAddr();
+    }
 
 
 
