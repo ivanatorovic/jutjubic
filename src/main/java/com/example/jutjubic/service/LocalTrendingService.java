@@ -91,7 +91,7 @@ public class LocalTrendingService {
                         popularityScore(b, likeMap, commentMap, now),
                         popularityScore(a, likeMap, commentMap, now)
                 ))
-                .limit(5) // na UI ti je 5 kartica; možeš staviti 20 ako želiš
+                .limit(20) // na UI ti je 5 kartica; možeš staviti 20 ako želiš
                 .map(v -> {
                     long likeCount = likeMap.getOrDefault(v.getId(), 0L);
                     long commentCount = commentMap.getOrDefault(v.getId(), 0L);
