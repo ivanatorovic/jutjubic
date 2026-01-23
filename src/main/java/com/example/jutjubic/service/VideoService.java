@@ -24,6 +24,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import jakarta.servlet.http.HttpServletRequest;
+import com.example.jutjubic.util.GeoHash;
 
 import java.io.IOException;
 import java.nio.file.*;
@@ -42,6 +43,8 @@ public class VideoService {
     private final VideoLikeService videoLikeService;
     private final CommentService commentService;
     private final IpGeoService ipGeoService;
+
+
 
 
     private static final long MAX_VIDEO_SIZE_BYTES = 200L * 1024 * 1024;
@@ -140,6 +143,10 @@ public class VideoService {
                 video.setLongitude(p.lon());
             }
 
+            int geoPrecision = 8; // čuvamo punu preciznost
+            video.setGeohash(
+                    GeoHash.encode(video.getLatitude(), video.getLongitude(), geoPrecision)
+            );
 
 
 

@@ -71,6 +71,10 @@ public class Video {
     @Column(name = "longitude")
     private Double longitude;
 
+    @Column(name = "geohash", length = 12)
+    private String geohash;
+
+
 
     public Video() {}
 
@@ -157,5 +161,11 @@ public class Video {
     public void setLocation(String location) { this.location = location; }
 
     public User getUser() { return user; }
+
     public void setUser(User user) { this.user = user; }
+
+    public String getGeohash() { return geohash; }
+
+    public void setGeohash(String geohash) { this.geohash = geohash; }
+
 }
