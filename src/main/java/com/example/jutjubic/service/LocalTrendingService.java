@@ -8,6 +8,8 @@ import com.example.jutjubic.repository.VideoLikeRepository;
 import com.example.jutjubic.repository.VideoRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Service;
+import com.example.jutjubic.util.GeoHash;
+
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -57,14 +59,36 @@ public class LocalTrendingService {
             System.out.println("[LOCAL] using IP fallback ip=" + ip + " -> lat=" + p.lat() + " lon=" + p.lon());
         }
 
-        List<Video> candidates = videoRepository.findTop200ByOrderByCreatedAtDesc();
+        double r = radiusKm;
+
+        System.out.println("[GEOHASH] radiusKm=" + r);
+
+        int p = GeoHash.choosePrecisionForRadiusKm(userLat, userLon, r);
+        System.out.println("[GEOHASH] chosen precision=" + p);
+
+        List<String> prefixes = GeoHash.neighborPrefixes(userLat, userLon, p)
+                .stream()
+                .toList();
+
+        System.out.println("[GEOHASH] prefixes size=" + prefixes.size());
+        System.out.println("[GEOHASH] prefixes=" + prefixes);
+
+
+        List<Video> candidates = videoRepository.findByGeohashPrefixes(
+                prefixes.get(0), prefixes.get(1), prefixes.get(2),
+                prefixes.get(3), prefixes.get(4), prefixes.get(5),
+                prefixes.get(6), prefixes.get(7), prefixes.get(8),
+                1000
+        );
+
         if (candidates.isEmpty()) return List.of();
 
-// 3️⃣ Lokalnost (haversine) - filtriraj videe unutar radijusa
+// 3️⃣ Precizno: krug (Haversine) nad kandidatima
         List<Video> localCandidates = candidates.stream()
                 .filter(v -> v.getLatitude() != null && v.getLongitude() != null)
-                .filter(v -> haversineKm(userLat, userLon, v.getLatitude(), v.getLongitude()) <= radiusKm)
+                .filter(v -> haversineKm(userLat, userLon, v.getLatitude(), v.getLongitude()) <= r)
                 .toList();
+
 
         if (localCandidates.isEmpty()) return List.of();
 
@@ -85,19 +109,18 @@ public class LocalTrendingService {
 
         LocalDateTime now = LocalDateTime.now();
 
-        // 5️⃣ S1: score (views + likes + comments + recency)
         return localCandidates.stream()
-                .sorted((a, b) -> Double.compare(
-                        popularityScore(b, likeMap, commentMap, now),
-                        popularityScore(a, likeMap, commentMap, now)
-                ))
-                .limit(20) // na UI ti je 5 kartica; možeš staviti 20 ako želiš
-                .map(v -> {
+                .map(v -> Map.entry(v, popularityScore(v, likeMap, commentMap, now)))
+                .sorted((e1, e2) -> Double.compare(e2.getValue(), e1.getValue()))
+                .limit(20)
+                .map(e -> {
+                    Video v = e.getKey();
                     long likeCount = likeMap.getOrDefault(v.getId(), 0L);
                     long commentCount = commentMap.getOrDefault(v.getId(), 0L);
                     return DtoMapper.toVideoPublicDto(v, likeCount, commentCount);
                 })
                 .toList();
+
     }
 
     // ---------------- S1 SCORE ----------------
