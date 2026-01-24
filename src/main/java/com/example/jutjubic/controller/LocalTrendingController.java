@@ -24,6 +24,11 @@ public class LocalTrendingController {
             @RequestParam(required = false) Double lon,
             HttpServletRequest request
     ) {
-        return localTrendingService.getLocalTrending(radiusKm, lat, lon, request);
+        try {
+            return localTrendingService.getLocalTrending(radiusKm, lat, lon, request);
+        } catch (Exception e) {
+            e.printStackTrace(); // privremeno
+            throw e;
+        }
     }
 }

@@ -256,3 +256,5 @@ CREATE INDEX IF NOT EXISTS idx_videos_geohash ON videos (geohash);
 -- 3) (preporuka za brži prefix LIKE u Postgresu)
 CREATE INDEX IF NOT EXISTS idx_videos_geohash_prefix
     ON videos (geohash varchar_pattern_ops);
+
+
