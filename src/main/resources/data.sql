@@ -257,4 +257,65 @@ CREATE INDEX IF NOT EXISTS idx_videos_geohash ON videos (geohash);
 CREATE INDEX IF NOT EXISTS idx_videos_geohash_prefix
     ON videos (geohash varchar_pattern_ops);
 
+INSERT INTO videos (
+    title,
+    description,
+    video_path,
+    thumbnail_path,
+    user_id,
+    created_at,
+    view_count,
+    scheduled,
+    scheduled_at,
+    location,
+    latitude,
+    longitude,
+    size_mb
+)
+SELECT
+    'Generated video #' || gs,
+    'Automatski generisan video za testiranje lokalnog trendinga',
+    'storage\\videos\\gen_' || gs || '.mp4',
+    'storage\\thumbnails\\gen_' || gs || '.jpg',
+
+    (gs % 5) + 1 AS user_id,
+
+    NOW() - (random() * interval '14 days'),
+
+    (random() * 1000)::int AS view_count,
+
+    false,
+    NULL,
+
+    -- raspodela lokacija
+    CASE
+        WHEN random() < 0.35 THEN 'Novi Sad'
+        WHEN random() < 0.65 THEN 'Beograd'
+        WHEN random() < 0.80 THEN 'Nis'
+        WHEN random() < 0.90 THEN 'Subotica'
+        ELSE 'Kragujevac'
+        END AS location,
+
+    -- latitude
+    CASE
+        WHEN random() < 0.35 THEN 45.2671 + (random() - 0.5) * 0.06
+        WHEN random() < 0.65 THEN 44.7866 + (random() - 0.5) * 0.08
+        WHEN random() < 0.80 THEN 43.3209 + (random() - 0.5) * 0.06
+        WHEN random() < 0.90 THEN 46.1005 + (random() - 0.5) * 0.05
+        ELSE 44.0128 + (random() - 0.5) * 0.05
+        END AS latitude,
+
+    -- longitude
+    CASE
+        WHEN random() < 0.35 THEN 19.8335 + (random() - 0.5) * 0.06
+        WHEN random() < 0.65 THEN 20.4489 + (random() - 0.5) * 0.08
+        WHEN random() < 0.80 THEN 21.8958 + (random() - 0.5) * 0.06
+        WHEN random() < 0.90 THEN 19.6656 + (random() - 0.5) * 0.05
+        ELSE 20.9114 + (random() - 0.5) * 0.05
+        END AS longitude,
+
+    (random() * 45 + 5)::int AS size_mb
+
+FROM generate_series(1, 1000) gs;
+
 

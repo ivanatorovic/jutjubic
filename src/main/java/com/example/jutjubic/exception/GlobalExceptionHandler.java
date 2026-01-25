@@ -62,6 +62,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> handleOther(Exception ex, HttpServletRequest req) {
 
+        System.out.println("=== UNHANDLED EXCEPTION ===");
+        System.out.println("URI=" + req.getRequestURI()
+                + " qs=" + req.getQueryString()
+                + " method=" + req.getMethod());
+        ex.printStackTrace(); // ili logger.error("Unhandled", ex);
         String uri = req.getRequestURI();
         String accept = req.getHeader("Accept");
         String contentType = req.getContentType();

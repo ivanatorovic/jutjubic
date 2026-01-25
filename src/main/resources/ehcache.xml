@@ -57,7 +57,7 @@
         <value-type>java.lang.Object</value-type>
 
         <expiry>
-            <ttl unit="seconds">300</ttl>
+            <ttl unit="seconds">100</ttl>
         </expiry>
 
         <resources>

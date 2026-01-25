@@ -35,7 +35,8 @@ public class LocalTrendingCacheService {
 
     @Cacheable(
             cacheNames = "localTrending",
-            key = "T(com.example.jutjubic.service.LocalTrendingService).cacheKey(#radiusKm, #lat, #lon)"
+            key = "T(com.example.jutjubic.service.LocalTrendingService).cacheKey(#radiusKm, #lat, #lon)",
+            sync = true
     )
     public List<VideoPublicDto> getLocalTrendingCached(double radiusKm, double lat, double lon) {
 
@@ -77,7 +78,6 @@ public class LocalTrendingCacheService {
                         VideoLikeRepository.IdCount::getVideoId,
                         VideoLikeRepository.IdCount::getCnt
                 ));
-
         Map<Long, Long> commentMap = commentRepository.countCommentsByVideoIds(ids).stream()
                 .collect(Collectors.toMap(
                         CommentRepository.IdCount::getVideoId,
@@ -95,7 +95,13 @@ public class LocalTrendingCacheService {
                     Video v = e.getKey();
                     long likeCount = likeMap.getOrDefault(v.getId(), 0L);
                     long commentCount = commentMap.getOrDefault(v.getId(), 0L);
-                    return DtoMapper.toVideoPublicDto(v, likeCount, commentCount);
+                    try {
+                        return DtoMapper.toVideoPublicDto(v, likeCount, commentCount);
+                    } catch (Exception ex) {
+                        System.out.println("[LT] MAPPER FAIL videoId=" + v.getId());
+                        ex.printStackTrace();
+                        throw ex; // ✅ važno: re-throw da i dalje dobiješ 500
+                    }
                 })
                 .toList();
     }
@@ -106,7 +112,8 @@ public class LocalTrendingCacheService {
                                    Map<Long, Long> comments,
                                    LocalDateTime now) {
 
-        long viewCount = v.getViewCount();
+        Long vc = v.getViewCount();
+        long viewCount = (vc == null) ? 0L : vc;
         long likeCount = likes.getOrDefault(v.getId(), 0L);
         long commentCount = comments.getOrDefault(v.getId(), 0L);
 

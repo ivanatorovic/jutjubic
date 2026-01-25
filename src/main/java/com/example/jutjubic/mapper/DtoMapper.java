@@ -7,6 +7,8 @@ import com.example.jutjubic.model.Comment;
 import com.example.jutjubic.model.User;
 import com.example.jutjubic.model.Video;
 
+import java.util.List;
+
 public class DtoMapper {
 
     private DtoMapper() {}
@@ -22,7 +24,7 @@ public class DtoMapper {
         );
     }
 
-    public static VideoPublicDto toVideoPublicDto(Video v,long likeCount,long commentCount) {
+    public static VideoPublicDto toVideoPublicDto(Video v, long likeCount, long commentCount) {
         Long userId = null;
         String username = null;
 
@@ -31,11 +33,14 @@ public class DtoMapper {
             username = v.getUser().getUsername();
         }
 
+        // ✅ KLJUČNA IZMENA: napravi "plain" listu (ne Hibernate lazy kolekciju/proxy)
+        List<String> safeTags = (v.getTags() == null) ? List.of() : List.copyOf(v.getTags());
+
         return new VideoPublicDto(
                 v.getId(),
                 v.getTitle(),
                 v.getDescription(),
-                v.getTags(),
+                safeTags,
                 v.getSizeMB(),
                 v.getCreatedAt(),
                 v.getLocation(),
