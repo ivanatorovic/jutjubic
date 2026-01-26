@@ -112,22 +112,26 @@ public class LocalTrendingCacheService {
                                    Map<Long, Long> comments,
                                    LocalDateTime now) {
 
-        Long vc = v.getViewCount();
-        long viewCount = (vc == null) ? 0L : vc;
+        long views = Math.max(0, v.getViewCount());
         long likeCount = likes.getOrDefault(v.getId(), 0L);
         long commentCount = comments.getOrDefault(v.getId(), 0L);
 
-        double base = Math.log(viewCount + 1.0)
-                + 3.0 * likeCount
-                + 5.0 * commentCount;
+        // 1) Popularnost (svi signali smireni logom)
+        double popularity =
+                Math.log(views + 1.0)
+                        + 2.0 * Math.log(likeCount + 1.0)
+                        + 3.0 * Math.log(commentCount + 1.0);
 
+        // 2) Freshness (half-life ~ 24h)
         LocalDateTime created = v.getCreatedAt();
-        if (created == null) return base;
+        if (created == null) return popularity;
 
         double ageHours = Duration.between(created, now).toMinutes() / 60.0;
-        double decay = 1.0 + (ageHours / 24.0);
 
-        return base / decay;
+        double halfLifeHours = 24.0;   // možeš reći: "trending se resetuje otprilike dnevno"
+        double freshness = Math.pow(2.0, ageHours / halfLifeHours);
+
+        return popularity / freshness;
     }
 
     // ---------------- HAVERSINE ----------------
