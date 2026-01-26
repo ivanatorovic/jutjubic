@@ -1,6 +1,8 @@
 package com.example.jutjubic.service;
 
+import com.example.jutjubic.dto.CachedTrending;
 import com.example.jutjubic.dto.VideoPublicDto;
+import com.example.jutjubic.logger.LocalTrendingCacheStats;
 import com.example.jutjubic.mapper.DtoMapper;
 import com.example.jutjubic.model.Video;
 import com.example.jutjubic.repository.CommentRepository;
@@ -30,6 +32,8 @@ public class LocalTrendingService {
     private final CommentRepository commentRepository;
     private final IpGeoService ipGeoService;
     private final CacheManager cacheManager;
+    private final LocalTrendingCacheStats cacheStats;
+
     private final LocalTrendingCacheService cacheService;
     public LocalTrendingService(
             VideoRepository videoRepository,
@@ -37,7 +41,9 @@ public class LocalTrendingService {
             CommentRepository commentRepository,
             IpGeoService ipGeoService,
             CacheManager cacheManager,
-            LocalTrendingCacheService cacheService
+            LocalTrendingCacheService cacheService,
+            LocalTrendingCacheStats cacheStats
+
     ) {
         this.videoRepository = videoRepository;
         this.likeRepository = likeRepository;
@@ -45,6 +51,8 @@ public class LocalTrendingService {
         this.ipGeoService = ipGeoService;
         this.cacheManager = cacheManager;
         this.cacheService = cacheService;
+        this.cacheStats = cacheStats;
+
     }
 
     public List<VideoPublicDto> getLocalTrending(
@@ -78,10 +86,20 @@ public class LocalTrendingService {
         Cache cache = cacheManager.getCache("localTrending");
         Object cached = (cache != null) ? cache.get(key, Object.class) : null;
 
-        System.out.println("[CACHE] localTrending key=" + key + " hit=" + (cached != null));
+        boolean hit = (cached != null);
+        if (hit) cacheStats.hit();
+        else cacheStats.miss();
 
-        // 2) Pozovi KEŠIRANU varijantu (bez request-a)
-        return cacheService.getLocalTrendingCached(radiusKm, userLat, userLon);
+
+
+
+        CachedTrending ct = cacheService.getLocalTrendingCached(radiusKm, userLat, userLon);
+
+        long stalenessSec = Duration.between(ct.computedAt(), LocalDateTime.now()).getSeconds();
+        System.out.println("[FRESHNESS] staleness=" + stalenessSec + "s key=" + key);
+
+        return ct.items();
+
     }
 
 

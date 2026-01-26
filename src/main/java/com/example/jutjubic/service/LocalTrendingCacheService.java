@@ -1,5 +1,6 @@
 package com.example.jutjubic.service;
 
+import com.example.jutjubic.dto.CachedTrending;
 import com.example.jutjubic.dto.VideoPublicDto;
 import com.example.jutjubic.mapper.DtoMapper;
 import com.example.jutjubic.model.Video;
@@ -38,13 +39,13 @@ public class LocalTrendingCacheService {
             key = "T(com.example.jutjubic.service.LocalTrendingService).cacheKey(#radiusKm, #lat, #lon)",
             sync = true
     )
-    public List<VideoPublicDto> getLocalTrendingCached(double radiusKm, double lat, double lon) {
+    public CachedTrending getLocalTrendingCached(double radiusKm, double lat, double lon) {
 
+        LocalDateTime computedAt = LocalDateTime.now();
         double r = radiusKm;
 
         System.out.println("[GEOHASH] radiusKm=" + r);
 
-        // Izaberi preciznost u zavisnosti od radijusa
         int p = GeoHash.choosePrecisionForRadiusKm(lat, lon, r);
         System.out.println("[GEOHASH] chosen precision=" + p);
 
@@ -52,7 +53,6 @@ public class LocalTrendingCacheService {
         System.out.println("[GEOHASH] prefixes size=" + prefixes.size());
         System.out.println("[GEOHASH] prefixes=" + prefixes);
 
-        // Kandidati (prefiksi)
         List<Video> candidates = videoRepository.findByGeohashPrefixes(
                 prefixes.get(0), prefixes.get(1), prefixes.get(2),
                 prefixes.get(3), prefixes.get(4), prefixes.get(5),
@@ -60,24 +60,27 @@ public class LocalTrendingCacheService {
                 1000
         );
 
-        if (candidates.isEmpty()) return List.of();
+        if (candidates.isEmpty()) {
+            return new CachedTrending(computedAt, List.of());
+        }
 
-        // Precizno filtriranje krugom (Haversine)
         List<Video> localCandidates = candidates.stream()
                 .filter(v -> v.getLatitude() != null && v.getLongitude() != null)
                 .filter(v -> haversineKm(lat, lon, v.getLatitude(), v.getLongitude()) <= r)
                 .toList();
 
-        if (localCandidates.isEmpty()) return List.of();
+        if (localCandidates.isEmpty()) {
+            return new CachedTrending(computedAt, List.of());
+        }
 
         List<Long> ids = localCandidates.stream().map(Video::getId).toList();
 
-        // Batch like/comment counts (bez N+1)
         Map<Long, Long> likeMap = likeRepository.countLikesByVideoIds(ids).stream()
                 .collect(Collectors.toMap(
                         VideoLikeRepository.IdCount::getVideoId,
                         VideoLikeRepository.IdCount::getCnt
                 ));
+
         Map<Long, Long> commentMap = commentRepository.countCommentsByVideoIds(ids).stream()
                 .collect(Collectors.toMap(
                         CommentRepository.IdCount::getVideoId,
@@ -86,8 +89,7 @@ public class LocalTrendingCacheService {
 
         LocalDateTime now = LocalDateTime.now();
 
-        // Score + sortiranje
-        return localCandidates.stream()
+        List<VideoPublicDto> result = localCandidates.stream()
                 .map(v -> Map.entry(v, popularityScore(v, likeMap, commentMap, now)))
                 .sorted((e1, e2) -> Double.compare(e2.getValue(), e1.getValue()))
                 .limit(20)
@@ -95,16 +97,13 @@ public class LocalTrendingCacheService {
                     Video v = e.getKey();
                     long likeCount = likeMap.getOrDefault(v.getId(), 0L);
                     long commentCount = commentMap.getOrDefault(v.getId(), 0L);
-                    try {
-                        return DtoMapper.toVideoPublicDto(v, likeCount, commentCount);
-                    } catch (Exception ex) {
-                        System.out.println("[LT] MAPPER FAIL videoId=" + v.getId());
-                        ex.printStackTrace();
-                        throw ex; // ✅ važno: re-throw da i dalje dobiješ 500
-                    }
+                    return DtoMapper.toVideoPublicDto(v, likeCount, commentCount);
                 })
                 .toList();
+
+        return new CachedTrending(computedAt, result);
     }
+
 
     // ---------------- S1 SCORE ----------------
     private double popularityScore(Video v,
