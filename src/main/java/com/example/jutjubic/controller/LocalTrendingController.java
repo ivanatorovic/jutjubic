@@ -27,7 +27,7 @@ public class LocalTrendingController {
         try {
             return localTrendingService.getLocalTrending(radiusKm, lat, lon, request);
         } catch (Exception e) {
-            e.printStackTrace(); // privremeno
+            e.printStackTrace();
             throw e;
         }
     }

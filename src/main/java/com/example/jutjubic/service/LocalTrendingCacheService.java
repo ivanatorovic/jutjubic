@@ -105,31 +105,48 @@ public class LocalTrendingCacheService {
     }
 
 
-    // ---------------- S1 SCORE ----------------
+
     private double popularityScore(Video v,
                                    Map<Long, Long> likes,
                                    Map<Long, Long> comments,
                                    LocalDateTime now) {
 
-        Long vc = v.getViewCount();
-        long viewCount = (vc == null) ? 0L : vc;
+        long views = Math.max(0, v.getViewCount());
         long likeCount = likes.getOrDefault(v.getId(), 0L);
         long commentCount = comments.getOrDefault(v.getId(), 0L);
 
-        double base = Math.log(viewCount + 1.0)
-                + 3.0 * likeCount
-                + 5.0 * commentCount;
+
+        double popularity =
+                1.4 * Math.log(views + 1.0)
+                        + 1.8 * Math.log(likeCount + 1.0)
+                        + 2.0 * Math.log(commentCount + 1.0);
 
         LocalDateTime created = v.getCreatedAt();
-        if (created == null) return base;
+        if (created == null) return popularity;
 
         double ageHours = Duration.between(created, now).toMinutes() / 60.0;
-        double decay = 1.0 + (ageHours / 24.0);
+        if (ageHours < 0) ageHours = 0;
 
-        return base / decay;
+
+        double graceHours = 7.0 * 24.0; // 168h
+
+
+        double mildAt7Days = 1.25;
+        double mildDecay;
+        if (ageHours <= graceHours) {
+            mildDecay = 1.0 + (mildAt7Days - 1.0) * (ageHours / graceHours);
+            return popularity / mildDecay;
+        }
+
+
+        double extraHours = ageHours - graceHours;
+        double halfLifeAfterGrace = 48.0;
+        double strongDecay = Math.pow(2.0, extraHours / halfLifeAfterGrace);
+
+        return popularity / (mildAt7Days * strongDecay);
     }
 
-    // ---------------- HAVERSINE ----------------
+
     private double haversineKm(double lat1, double lon1, double lat2, double lon2) {
         final double R = 6371.0;
         double dLat = Math.toRadians(lat2 - lat1);

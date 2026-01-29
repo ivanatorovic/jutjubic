@@ -1,5 +1,6 @@
 package com.example.jutjubic.service;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
@@ -7,9 +8,10 @@ import org.springframework.web.client.RestClient;
 public class IpGeoService {
 
     private final RestClient restClient = RestClient.create("http://ip-api.com");
-
+    @Cacheable(cacheNames = "ipGeo", key = "#ip")
     public GeoPoint locate(String ip) {
-        // localhost/loopback fallback (lokalni dev)
+        System.out.println("[IP-GEO] method executed for ip=" + ip);
+
         if (ip == null || ip.isBlank()
                 || "127.0.0.1".equals(ip)
                 || "::1".equals(ip)
@@ -25,14 +27,15 @@ public class IpGeoService {
 
             if (res != null && "success".equalsIgnoreCase(res.status()) && res.lat() != null && res.lon() != null) {
                 return new GeoPoint(res.lat(), res.lon());
+
             }
 
         } catch (Exception e) {
-            // ignore, fallback below
+
         }
 
-        // fallback ako servis ne radi / limit / greška
-        return new GeoPoint(44.7866, 20.4489); // Beograd
+
+        return new GeoPoint(45.2671, 19.8335);
     }
 
     public record GeoPoint(double lat, double lon) {}

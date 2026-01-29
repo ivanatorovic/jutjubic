@@ -66,7 +66,7 @@ public class GlobalExceptionHandler {
         System.out.println("URI=" + req.getRequestURI()
                 + " qs=" + req.getQueryString()
                 + " method=" + req.getMethod());
-        ex.printStackTrace(); // ili logger.error("Unhandled", ex);
+        ex.printStackTrace();
         String uri = req.getRequestURI();
         String accept = req.getHeader("Accept");
         String contentType = req.getContentType();

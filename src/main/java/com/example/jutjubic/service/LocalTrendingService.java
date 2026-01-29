@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
- // ime keša
+
 public class LocalTrendingService {
 
     private final VideoRepository videoRepository;
@@ -61,7 +61,7 @@ public class LocalTrendingService {
             Double lon,
             HttpServletRequest request
     ) {
-        // 1) Odredi lokaciju (isto kao kod tebe)
+
         double userLat;
         double userLon;
 
@@ -104,7 +104,7 @@ public class LocalTrendingService {
 
 
 
-    // ================== HELPERS ==================
+
     private String extractClientIp(HttpServletRequest request) {
         String xff = request.getHeader("X-Forwarded-For");
         if (xff != null && !xff.isBlank()) {
@@ -113,12 +113,11 @@ public class LocalTrendingService {
         return request.getRemoteAddr();
     }
     public static String cacheKey(double radiusKm, double lat, double lon) {
-        // fiksiramo preciznost da ne bude milion ključeva
-        // 6 je ok start (cell par km do ~10km zavisi od lokacije)
+
         int precision = 6;
 
         String cell = GeoHash.encode(lat, lon, precision);
-        // radius u ključ da se razlikuju 5km i 20km trendinzi
+
         return String.format("%.1f:%s", radiusKm, cell);
     }
 

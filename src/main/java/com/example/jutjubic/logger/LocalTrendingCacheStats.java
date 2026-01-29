@@ -19,7 +19,7 @@ public class LocalTrendingCacheStats {
         misses.incrementAndGet();
     }
 
-    // 👇 OVO SE POZIVA KAD SE APLIKACIJA GASI
+
     @PreDestroy
     public void printFinalStats() {
         System.out.println("======================================");

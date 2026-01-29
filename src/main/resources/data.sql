@@ -247,13 +247,13 @@ INSERT INTO video_likes (video_id, user_id, created_at) VALUES
 (12, 4, NOW());
 
 
--- 1) geohash kolona
+
 ALTER TABLE videos ADD COLUMN IF NOT EXISTS geohash VARCHAR(12);
 
--- 2) indeks (B-tree)
+
 CREATE INDEX IF NOT EXISTS idx_videos_geohash ON videos (geohash);
 
--- 3) (preporuka za brži prefix LIKE u Postgresu)
+
 CREATE INDEX IF NOT EXISTS idx_videos_geohash_prefix
     ON videos (geohash varchar_pattern_ops);
 
