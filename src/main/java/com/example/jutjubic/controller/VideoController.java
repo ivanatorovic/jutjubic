@@ -10,6 +10,7 @@ import com.example.jutjubic.service.VideoLikeService;
 import com.example.jutjubic.service.VideoService;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.ResourceRegion;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -93,7 +94,11 @@ public class VideoController {
 
 
     @GetMapping(value = "/{id}/stream", produces = "video/mp4")
-    public ResponseEntity<Resource> streamVideo(@PathVariable Long id) {
+    public ResponseEntity<ResourceRegion> streamVideo(
+            @PathVariable Long id,
+            @RequestHeader HttpHeaders headers
+    ) throws Exception {
+
         Video v = videoService.getById(id);
 
         if (v.getVideoPath() == null || v.getVideoPath().isBlank()) {
@@ -105,12 +110,37 @@ public class VideoController {
             return ResponseEntity.notFound().build();
         }
 
-        Resource resource = new FileSystemResource(path);
+        Resource video = new FileSystemResource(path);
 
-        return ResponseEntity.ok()
+        long contentLength = video.contentLength();
+        long chunkSize = 1_000_000; // 1MB (može 512KB-2MB)
+
+        // Ako nema Range, pošalji prvi chunk (ili ceo fajl, ali chunk je bolje)
+        if (headers.getRange() == null || headers.getRange().isEmpty()) {
+            ResourceRegion region = new ResourceRegion(video, 0, Math.min(chunkSize, contentLength));
+            return ResponseEntity.status(HttpStatus.PARTIAL_CONTENT)
+                    .contentType(MediaType.valueOf("video/mp4"))
+                    .header(HttpHeaders.ACCEPT_RANGES, "bytes")
+                    .contentLength(region.getCount())
+                    .body(region);
+        }
+
+        // Ako ima Range:
+        HttpRange range = headers.getRange().get(0);
+        long start = range.getRangeStart(contentLength);
+        long end = range.getRangeEnd(contentLength);
+
+        long rangeLength = Math.min(chunkSize, end - start + 1);
+
+        ResourceRegion region = new ResourceRegion(video, start, rangeLength);
+
+        return ResponseEntity.status(HttpStatus.PARTIAL_CONTENT)
                 .contentType(MediaType.valueOf("video/mp4"))
-                .body(resource);
+                .header(HttpHeaders.ACCEPT_RANGES, "bytes")
+                .contentLength(region.getCount())
+                .body(region);
     }
+
 
     @GetMapping("/{id}/comments")
     public ResponseEntity<Page<CommentPublicDto>> getComments(
