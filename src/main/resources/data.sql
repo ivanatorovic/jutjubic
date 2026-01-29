@@ -1,11 +1,20 @@
-
 INSERT INTO users (email, username, password, first_name, last_name, address, enabled, activation_token, created_at)
 VALUES
     ('pera@gmail.com', 'pera', '$2a$10$6Fi/kOMfMZ2Rki/yxM.TDeZtEDh/.YKvUy1tYiHd69/I2rtZGGON6', 'Pera', 'Peric', 'Bulevar Oslobodjenja 22', true, NULL, NOW()),
     ('zika@gmail.com', 'zika', '$2a$12$NHk/iCm/q0uILyn1MxnKJOpHMwtqpDaMofDsjMrBjFpef1ZN0h/S6', 'Zika', 'Zikic', 'Bulevar Evrope 2', true, NULL, NOW()),
     ('mika@gmail.com', 'mika', '$2a$12$Ce2aaKbS1EyHZf8slKfN1es6c/wVbFZEEtOXvyNaqWknlICUzEJ9e', 'Mika', 'Mikic', 'Cara Dusana 10', true, NULL, NOW()),
     ('ana@gmail.com', 'ana', '$2a$12$oZvno7SkAQK0vhBP8tnpVOWvj/gdC/PNqBVehtBSQpDe5.cwY5xcW', 'Ana', 'Anic', 'Bulevar Mihajla Pupina 7', true, NULL, NOW()),
-    ('lena@gmail.com', 'lena', '$2a$12$3bFR9DAyXLgW/0C0Z1/cgeNFFCGgfdJ9uRbcJ61ksq.6/EUnFZRd2', 'Lena', 'Lenic', 'Jevrejska 3', true, NULL, NOW());
+    ('lena@gmail.com', 'lena', '$2a$12$3bFR9DAyXLgW/0C0Z1/cgeNFFCGgfdJ9uRbcJ61ksq.6/EUnFZRd2', 'Lena', 'Lenic', 'Jevrejska 3', true, NULL, NOW()),
+    ('marko@gmail.com',  'marko',  '$2a$12$9r2q9bRYWzk1PJfLpsIP6ucFQQ/T7.YiN66k9peJ1fAC9unLCIv3O', 'Marko',  'Markovic',  'Narodnog fronta 12', true, NULL, NOW()),
+    ('jelena@gmail.com', 'jelena', '$2a$12$/paUejfcPsDMYdUXh3ia4eQhEuC3rIfYV2XMLaM08EwT9Z5psIzVa', 'Jelena', 'Jovanovic', 'Bulevar Evrope 45',   true, NULL, NOW()),
+    ('nikola@gmail.com', 'nikola', '$2a$12$332W5Lzr9r5we.yV2wRfhe0wY6m4ZHzZjkWWTKIOhIkQ9Dd3jYZgq', 'Nikola', 'Nikolic',   'Kralja Petra 3',      true, NULL, NOW()),
+    ('milica@gmail.com', 'milica', '$2a$12$Sz6yxxqrodICXrp4Wnycm.G4rxXWnBJ7h0CkF3y0ve4KFZzlJbrM2', 'Milica', 'Milic',     'Futoska 88',          true, NULL, NOW()),
+    ('stefan@gmail.com', 'stefan', '$2a$12$Rw2JcH/rOuxv7qEGn/d8wOsh2B4s6cB8O5R1Ob6kHsLF6hhF.Eylq', 'Stefan', 'Stefanovic','Cara Lazara 20',      true, NULL, NOW()),
+    ('iva@gmail.com',    'iva',    '$2a$12$k5p7DbAUqIEKZ1hUZZzI3uXVn1xBaUtEDJUQsba3wlu4OWE9eGlPC', 'Iva',    'Ivic',      'Bulevar Mihajla Pupina 19', true, NULL, NOW()),
+    ('danilo@gmail.com', 'danilo', '$2a$12$YQ61pMGnfwD2kymzujD0R.bOobCaDraZi5EiNtzx1c2WX1wvWh/Q.', 'Danilo', 'Danic',     'Jevrejska 14',        true, NULL, NOW()),
+    ('tamara@gmail.com', 'tamara', '$2a$12$Iu8BmuP/ODCp6M.VooePvOjx0qSsRkHdC9kydzV/i4voDtod.5loK', 'Tamara', 'Tomic',     'Gunduliceva 6',       true, NULL, NOW()),
+    ('nemanja@gmail.com','nemanja','$2a$12$uXjYDInBUwF.yMLIc36DVOJI1ULaBz010SS0OTJYiwDq/h.QeyOuy', 'Nemanja','Nenic',     'Bulevar Oslobodjenja 101', true, NULL, NOW()),
+    ('sofija@gmail.com', 'sofija', '$2a$12$MBachD90tVQvtAsufyznGe3Bc30h7FWRwutqyXg4cOoTHtXu9Oi1m', 'Sofija', 'Sofric',    'Zmaj Jovina 2',       true, NULL, NOW());
 
 
 INSERT INTO videos (
@@ -17,7 +26,7 @@ VALUES
      'storage\\videos\\14247790-hd_1920_1080_30fps.mp4',
      'storage\\thumbnails\\klavir.jpg',
      3,
-     NOW() - INTERVAL '5 days', 0,
+     NOW() - INTERVAL '5 days', 34,
      false, NULL,
      'Beograd', 44.7866, 20.4489, 30),
 
@@ -25,7 +34,7 @@ VALUES
      'storage\\videos\\855633-hd_1920_1080_25fps.mp4',
      'storage\\thumbnails\\gradska_plaza2.jpg',
      1,
-     NOW() - INTERVAL '4 days 3 hours', 0,
+     NOW() - INTERVAL '4 days 3 hours', 15,
      false, NULL,
      'Nis', 43.3209, 21.8958, 20),
 
@@ -41,7 +50,7 @@ VALUES
      'storage\\videos\\293085_small.mp4',
      'storage\\thumbnails\\trening.jpg',
      4,
-     NOW() - INTERVAL '3 days', 0,
+     NOW() - INTERVAL '3 days', 7,
      false, NULL,
      'Beograd', 44.7866, 20.4489, 29),
 
@@ -49,7 +58,7 @@ VALUES
      'storage\\videos\\2620043-uhd_3840_2160_25fps.mp4',
      'storage\\thumbnails\\tiganj.jpg',
      2,
-     NOW() - INTERVAL '2 days 6 hours', 0,
+     NOW() - INTERVAL '2 days 6 hours', 22,
      false, NULL,
      'Kragujevac', 44.0128, 20.9114, 12),
 
@@ -57,7 +66,7 @@ VALUES
      'storage\\videos\\coverr-a-man-happily-talks-on-a-virtual-meeting-9706-1080p.mp4',
      'storage\\thumbnails\\potcast1.jpg',
      5,
-     NOW() - INTERVAL '1 day', 0,
+     NOW() - INTERVAL '1 day', 204,
      false, NULL,
      'Novi Sad', 45.2671, 19.8335, 15),
 
@@ -73,7 +82,7 @@ VALUES
      'storage\\videos\\3181592-uhd_3840_2160_25fps.mp4',
      'storage\\thumbnails\\sminka.jpg',
      2,
-     NOW() - INTERVAL '8 hours', 0,
+     NOW() - INTERVAL '8 hours', 57,
      false, NULL,
      'Beograd', 44.7866, 20.4489, 12),
 
@@ -156,25 +165,52 @@ INSERT INTO video_tags (video_id, tag) VALUES
 INSERT INTO comments (text, video_id, user_id, created_at) VALUES
                                                                ('Top video!', 1, 1, NOW()),
                                                                ('Brutalno!', 1, 2, NOW()),
+                                                               ('Prelepa muzika, baš prija.', 1, 6, NOW() - INTERVAL '2 days'),
+                                                               ('Koji je ovo model klavira?', 1, 7, NOW() - INTERVAL '1 day 6 hours'),
+                                                               ('Svaka čast na objašnjenju!', 1, 8, NOW() - INTERVAL '10 hours'),
+
+
                                                                ('Nice', 2, 2, NOW()),
                                                                ('Lep video i dobra atmosfera.', 2, 3, NOW()),
                                                                ('Bas opustajuce.', 2, 4, NOW()),
+                                                               ('Ovo me je vratilo na more', 2, 9, NOW() - INTERVAL '3 days'),
+                                                               ('Kadrovi su brutalni!',       2, 10, NOW() - INTERVAL '2 days 2 hours'),
+                                                               ('Top atmosfera!',             2, 11, NOW() - INTERVAL '18 hours'),
+                                                               ('Mogao bi duži klip!',        2, 12, NOW() - INTERVAL '7 hours'),
+
+
 
 
                                                                ('Koristan primer razgovora.', 3, 5, NOW()),
                                                                ('Dobar savet za intervju.', 3, 3, NOW()),
+                                                               ('Ovo realno pomaže za intervju.', 3, 6, NOW() - INTERVAL '2 days 5 hours'),
+
 
 
                                                                ('Super trening za kucu.', 4, 4, NOW()),
                                                                ('Bas me je umorio.', 4, 5, NOW()),
+                                                               ('Konačno trening bez opreme.', 4, 8, NOW() - INTERVAL '2 days'),
+
 
 
                                                                ('Brz i jednostavan recept.', 5, 3, NOW()),
                                                                ('Ovo cu probati veceras.', 5, 4, NOW()),
+                                                               ('Pravim ovo sutra ',        5, 6, NOW() - INTERVAL '1 day 10 hours'),
+                                                               ('Jednostavno i ukusno.',      5, 9, NOW() - INTERVAL '1 day 1 hour'),
+                                                               ('Odličan recept!',            5, 12, NOW() - INTERVAL '4 hours'),
+
 
 
                                                                ('Zanimljiva tema.', 6, 5, NOW()),
                                                                ('Prijatno za slusanje.', 6, 3, NOW()),
+                                                               ('Podcast je baš opuštajući.', 6, 7, NOW() - INTERVAL '23 hours'),
+                                                               ('Ko je gost?',                6, 8, NOW() - INTERVAL '12 hours'),
+                                                               ('Tema je baš zanimljiva.',    6, 15, NOW() - INTERVAL '2 hours'),
+                                                               ('Interesantno.', 6, 7, NOW() - INTERVAL '23 hours'),
+                                                               ('Izbor gosta odlican.?',                6, 14, NOW() - INTERVAL '12 hours'),
+                                                               ('Ekstra.',    6, 13, NOW() - INTERVAL '2 hours'),
+
+
 
 
                                                                ('Dobra voznja i lep kadar.', 7, 4, NOW()),
@@ -198,53 +234,137 @@ INSERT INTO comments (text, video_id, user_id, created_at) VALUES
 
 
                                                                ('Pariz uvek izgleda lepo.', 12, 5, NOW()),
-                                                               ('Dobar ugao snimanja.', 12, 3, NOW());
+                                                               ('Dobar ugao snimanja.', 12, 3, NOW()),
+
+
+                                                               ('Ovo je ludilo ',           9, 6, NOW() - INTERVAL '50 minutes'),
+                                                               ('Adrenalin na max!',          9, 8, NOW() - INTERVAL '40 minutes'),
+                                                               ('Prelepa zimska scena.',      9, 10, NOW() - INTERVAL '25 minutes'),
+
+                                                               ('Baš praznično!',             10, 6, NOW() - INTERVAL '55 minutes'),
+                                                               ('Sviđa mi se montaža.',       10, 7, NOW() - INTERVAL '45 minutes'),
+
+                                                               ('Top snimak!',                11, 8, NOW() - INTERVAL '35 minutes'),
+                                                               ('Kakav pogled ',            11, 9, NOW() - INTERVAL '20 minutes'),
+
+                                                               ('Pariz je uvek dobar izbor.', 12, 6, NOW() - INTERVAL '30 minutes'),
+                                                               ('Odličan klip!',              12, 10, NOW() - INTERVAL '10 minutes');
 
 
 INSERT INTO video_likes (video_id, user_id, created_at) VALUES
 
-(2, 1, NOW()),
-(2, 3, NOW()),
+                                                            (1, 1, NOW()),
+                                                            (1, 3, NOW()),
+                                                            (1, 4, NOW()),
+                                                            (1, 5, NOW()),
+                                                            (1, 6, NOW()),
+                                                            (1, 7, NOW()),
+
+                                                            (2, 1, NOW()),
+                                                            (2, 3, NOW()),
+                                                            (2, 4, NOW()),
+                                                            (2, 5, NOW()),
+                                                            (2, 6, NOW()),
+                                                            (2, 7, NOW()),
+                                                            (2, 8, NOW()),
+                                                            (2, 9, NOW()),
+                                                            (2, 10, NOW()),
+                                                            (2, 11, NOW()),
 
 
-(3, 2, NOW()),
-(3, 4, NOW()),
+                                                            (3, 2, NOW()),
+                                                            (3, 4, NOW()),
+                                                            (3,  6, NOW()),
+                                                            (3,  8, NOW()),
 
 
-(4, 3, NOW()),
-(4, 5, NOW()),
+                                                            (4, 3, NOW()),
+                                                            (4, 5, NOW()),
+                                                            (4,  7, NOW()),
+                                                            (4,  9, NOW()),
 
 
-(5, 1, NOW()),
-(5, 4, NOW()),
+                                                            (5, 1, NOW()),
+                                                            (5, 4, NOW()),
+                                                            (5, 8, NOW()),
+                                                            (5, 9, NOW()),
+                                                            (5, 10, NOW()),
+                                                            (5, 11, NOW()),
+                                                            (5,  14, NOW()),
 
 
-(6, 2, NOW()),
-(6, 5, NOW()),
+
+                                                            (6, 2, NOW()),
+                                                            (6, 15, NOW()),
+                                                            (6, 14, NOW()),
+                                                            (6, 13, NOW()),
+                                                            (6, 7, NOW()),
+                                                            (6, 8, NOW()),
+                                                            (6, 9, NOW()),
+                                                            (6, 10, NOW()),
+                                                            (6, 11, NOW()),
+                                                            (6, 12, NOW()),
 
 
-(7, 3, NOW()),
-(7, 4, NOW()),
+
+                                                            (7, 3, NOW()),
+                                                            (7, 4, NOW()),
+                                                            (7,  12, NOW()),
 
 
-(8, 1, NOW()),
-(8, 5, NOW()),
+                                                            (8, 1, NOW()),
+                                                            (8, 5, NOW()),
+                                                            (8, 6, NOW()),
+                                                            (8, 15, NOW()),
+                                                            (8, 7, NOW()),
+                                                            (8, 8, NOW()),
+                                                            (8, 9, NOW()),
+                                                            (8, 10, NOW()),
+                                                            (8, 11, NOW()),
 
 
-(9, 2, NOW()),
-(9, 3, NOW()),
+
+                                                            (9, 2, NOW()),
+                                                            (9, 3, NOW()),
+                                                            (9,  6, NOW()),
+                                                            (9,  7, NOW()),
+                                                            (9,  8, NOW()),
+                                                            (9,  10, NOW()),
+                                                            (9,  11, NOW()),
+                                                            (9,  12, NOW()),
 
 
-(10, 4, NOW()),
-(10, 5, NOW()),
+
+                                                            (10, 4, NOW()),
+                                                            (10, 5, NOW()),
+                                                            (10, 6, NOW()),
+                                                            (10, 7, NOW()),
+                                                            (10, 8, NOW()),
+                                                            (10, 9, NOW()),
+                                                            (10, 10, NOW()),
+                                                            (10, 11, NOW()),
 
 
-(11, 1, NOW()),
-(11, 3, NOW()),
+                                                            (11, 1, NOW()),
+                                                            (11, 3, NOW()),
+                                                            (11, 6, NOW()),
+                                                            (11, 14, NOW()),
+                                                            (11, 8, NOW()),
+                                                            (11, 10, NOW()),
+                                                            (11, 12, NOW()),
 
 
-(12, 2, NOW()),
-(12, 4, NOW());
+                                                            (12, 2, NOW()),
+                                                            (12, 4, NOW()),
+                                                            (12, 6, NOW()),
+                                                            (12, 7, NOW()),
+                                                            (12, 8, NOW()),
+                                                            (12, 9, NOW()),
+                                                            (12, 11, NOW());
+
+
+
+
 
 
 
@@ -256,66 +376,3 @@ CREATE INDEX IF NOT EXISTS idx_videos_geohash ON videos (geohash);
 
 CREATE INDEX IF NOT EXISTS idx_videos_geohash_prefix
     ON videos (geohash varchar_pattern_ops);
-
-INSERT INTO videos (
-    title,
-    description,
-    video_path,
-    thumbnail_path,
-    user_id,
-    created_at,
-    view_count,
-    scheduled,
-    scheduled_at,
-    location,
-    latitude,
-    longitude,
-    size_mb
-)
-SELECT
-    'Generated video #' || gs,
-    'Automatski generisan video za testiranje lokalnog trendinga',
-    'storage\\videos\\gen_' || gs || '.mp4',
-    'storage\\thumbnails\\gen_' || gs || '.jpg',
-
-    (gs % 5) + 1 AS user_id,
-
-    NOW() - (random() * interval '14 days'),
-
-    (random() * 1000)::int AS view_count,
-
-    false,
-    NULL,
-
-    -- raspodela lokacija
-    CASE
-        WHEN random() < 0.35 THEN 'Novi Sad'
-        WHEN random() < 0.65 THEN 'Beograd'
-        WHEN random() < 0.80 THEN 'Nis'
-        WHEN random() < 0.90 THEN 'Subotica'
-        ELSE 'Kragujevac'
-        END AS location,
-
-    -- latitude
-    CASE
-        WHEN random() < 0.35 THEN 45.2671 + (random() - 0.5) * 0.06
-        WHEN random() < 0.65 THEN 44.7866 + (random() - 0.5) * 0.08
-        WHEN random() < 0.80 THEN 43.3209 + (random() - 0.5) * 0.06
-        WHEN random() < 0.90 THEN 46.1005 + (random() - 0.5) * 0.05
-        ELSE 44.0128 + (random() - 0.5) * 0.05
-        END AS latitude,
-
-    -- longitude
-    CASE
-        WHEN random() < 0.35 THEN 19.8335 + (random() - 0.5) * 0.06
-        WHEN random() < 0.65 THEN 20.4489 + (random() - 0.5) * 0.08
-        WHEN random() < 0.80 THEN 21.8958 + (random() - 0.5) * 0.06
-        WHEN random() < 0.90 THEN 19.6656 + (random() - 0.5) * 0.05
-        ELSE 20.9114 + (random() - 0.5) * 0.05
-        END AS longitude,
-
-    (random() * 45 + 5)::int AS size_mb
-
-FROM generate_series(1, 1000) gs;
-
-

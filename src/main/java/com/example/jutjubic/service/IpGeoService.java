@@ -16,7 +16,7 @@ public class IpGeoService {
                 || "127.0.0.1".equals(ip)
                 || "::1".equals(ip)
                 || "0:0:0:0:0:0:0:1".equals(ip)) {
-            return new GeoPoint(45.2671, 19.8335); // Novi Sad
+            return new GeoPoint(45.2671, 19.8335);
         }
 
         try {

@@ -128,7 +128,7 @@ public class LocalTrendingCacheService {
         if (ageHours < 0) ageHours = 0;
 
 
-        double graceHours = 7.0 * 24.0; // 168h
+        double graceHours = 7.0 * 24.0;
 
 
         double mildAt7Days = 1.25;
