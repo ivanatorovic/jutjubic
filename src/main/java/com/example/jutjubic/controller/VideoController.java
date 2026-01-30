@@ -113,9 +113,9 @@ public class VideoController {
         Resource video = new FileSystemResource(path);
 
         long contentLength = video.contentLength();
-        long chunkSize = 1_000_000;
+        long chunkSize = 1_000_000; // 1MB (može 512KB-2MB)
 
-
+        // Ako nema Range, pošalji prvi chunk (ili ceo fajl, ali chunk je bolje)
         if (headers.getRange() == null || headers.getRange().isEmpty()) {
             ResourceRegion region = new ResourceRegion(video, 0, Math.min(chunkSize, contentLength));
             return ResponseEntity.status(HttpStatus.PARTIAL_CONTENT)
@@ -125,7 +125,7 @@ public class VideoController {
                     .body(region);
         }
 
-
+        // Ako ima Range:
         HttpRange range = headers.getRange().get(0);
         long start = range.getRangeStart(contentLength);
         long end = range.getRangeEnd(contentLength);

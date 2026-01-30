@@ -1,9 +1,10 @@
-// src/main/java/.../config/WebSocketConfig.java
 package com.example.jutjubic.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
-import org.springframework.web.socket.config.annotation.*;
+import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
+import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
+import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
 @Configuration
 @EnableWebSocketMessageBroker
@@ -11,17 +12,17 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        // SockJS olakšava rad u browseru i preko proxy-a
-        registry.addEndpoint("/ws")
-                .setAllowedOriginPatterns("*")
+        registry.addEndpoint("/ws")                 // handshake endpoint
+                .setAllowedOriginPatterns("*")      // kasnije suzi na tvoj frontend domen
                 .withSockJS();
     }
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        // klijent šalje na /app/...
+        // klijent -> server (MessageMapping)
         registry.setApplicationDestinationPrefixes("/app");
-        // klijent se pretplaćuje na /topic/...
+
+        // server -> klijent (subscribe topic-i)
         registry.enableSimpleBroker("/topic");
     }
 }
