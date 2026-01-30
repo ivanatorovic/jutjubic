@@ -1,0 +1,43 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: jutjubic
+      POSTGRES_USER: jutjubic
+      POSTGRES_PASSWORD: jutjubic
+    ports:
+      - "5432:5432"
+
+  api1:
+    build: .
+    environment:
+      INSTANCE_ID: "api-1"
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/jutjubic
+      SPRING_DATASOURCE_USERNAME: jutjubic
+      SPRING_DATASOURCE_PASSWORD: jutjubic
+    depends_on:
+      - db
+    expose:
+      - "8080"
+
+  api2:
+    build: .
+    environment:
+      INSTANCE_ID: "api-2"
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/jutjubic
+      SPRING_DATASOURCE_USERNAME: jutjubic
+      SPRING_DATASOURCE_PASSWORD: jutjubic
+    depends_on:
+      - db
+    expose:
+      - "8080"
+
+  lb:
+    image: haproxy:2.9
+    ports:
+      - "8088:8080"
+    volumes:
+      - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+    depends_on:
+      - api1
+      - api2
