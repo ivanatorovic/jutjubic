@@ -67,4 +67,20 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
 
         filterChain.doFilter(request, response);
     }
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getServletPath();
+
+        // LIVENESS/READINESS/INFO moraju raditi i kad DB padne
+        if (path.startsWith("/actuator/")) return true;
+
+        // (opciono) da /api/whoami radi i kad DB padne
+        if (path.equals("/api/whoami")) return true;
+
+        // (opciono) auth rute su permitAll, nema potrebe da trošimo filter
+        if (path.startsWith("/api/auth/")) return true;
+
+        return false;
+    }
+
 }

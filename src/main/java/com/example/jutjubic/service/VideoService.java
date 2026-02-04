@@ -23,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import jakarta.servlet.http.HttpServletRequest;
 import com.example.jutjubic.util.GeoHash;
 
@@ -31,6 +32,8 @@ import java.nio.file.*;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+import com.example.jutjubic.dto.WatchInfoDto;
+import com.example.jutjubic.dto.PremiereStatus;
 
 @Service
 public class VideoService {
@@ -133,6 +136,21 @@ public class VideoService {
             video.setSizeMB(videoFile.getSize() / 1024 / 1024);
             video.setCreatedAt(LocalDateTime.now());
             video.setUser(uploader);
+            // ✅ scheduled publish logika
+            if (info.isScheduled()) {
+                if (info.getScheduledAt() == null) {
+                    throw new BadRequestException("Morate uneti datum i vreme za zakazani video.");
+                }
+                if (info.getScheduledAt().isBefore(LocalDateTime.now())) {
+                    throw new BadRequestException("Zakazano vreme mora biti u budućnosti.");
+                }
+                video.setScheduled(true);
+                video.setScheduledAt(info.getScheduledAt());
+            } else {
+                video.setScheduled(false);
+                video.setScheduledAt(null);
+            }
+
             // ✅ upiši koordinate ako su poslate
             // ✅ GEO: browser ako ima, inače IP fallback (S2 logika za upload)
             if (info.getLatitude() != null && info.getLongitude() != null) {
@@ -151,7 +169,9 @@ public class VideoService {
             );
 
 
-
+            int dur = com.example.jutjubic.util.FfprobeUtil.probeDurationSeconds(Paths.get(savedVideoPath));
+            video.setDurationSeconds(dur > 0 ? dur : null);
+            video.setDurationSeconds(dur);
             Video saved = videoRepository.save(video);
 
             TranscodeJob job = new TranscodeJob(saved, saved.getVideoPath());
@@ -309,6 +329,12 @@ public class VideoService {
         }
     }
     public VideoPublicDto getDtoById(Long id) {
+        Video v = getById(id);
+
+        // scheduled gate:
+        if (v.isScheduled() && v.getScheduledAt() != null && LocalDateTime.now().isBefore(v.getScheduledAt())) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Video još nije dostupan.");
+        }
 
         registerView(id);
 
@@ -319,6 +345,7 @@ public class VideoService {
                 commentService.countForVideo(v.getId())
         );
     }
+
 
 
     private String extractClientIp(HttpServletRequest request) {
@@ -342,6 +369,54 @@ public class VideoService {
 
         return null;
     }
+    public void markPremiereEnded(Long id) {
+        Video v = videoRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        if (!v.isScheduled()) { // ako koristiš scheduled kao "premijera"
+            return; // ili baci 400, kako želiš
+        }
+        v.setPremiereEnded(true);
+        // save nije ni potreban u JPA transakciji, ali može:
+        videoRepository.save(v);
+    }
+
+
+    public WatchInfoDto watchInfo(Long id) {
+        Video v = getById(id);
+
+        LocalDateTime now = LocalDateTime.now();
+
+        // običan video → nije premijera
+        if (!v.isScheduled() || v.getScheduledAt() == null) {
+            return new WatchInfoDto(
+                    now,
+                    null,
+                    v.getDurationSeconds(),
+                    PremiereStatus.LIVE
+            );
+        }
+
+        // premijera
+        LocalDateTime start = v.getScheduledAt();
+        Integer dur = v.getDurationSeconds();
+
+        PremiereStatus status;
+        if (now.isBefore(start)) {
+            status = PremiereStatus.SCHEDULED;
+        } else if (dur != null && dur > 0 && !now.isBefore(start.plusSeconds(dur))) {
+            status = PremiereStatus.ENDED;
+            if (!v.isPremiereEnded()) {
+                v.setPremiereEnded(true);
+                videoRepository.save(v);
+            }
+        } else {
+            status = PremiereStatus.LIVE;
+        }
+
+        return new WatchInfoDto(now, start, dur, status);
+    }
+
+
 
 
 }

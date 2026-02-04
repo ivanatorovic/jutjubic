@@ -35,6 +35,15 @@ public interface VideoRepository extends JpaRepository<Video, Long>, VideoReposi
             int limit
     );
 
+    @Query("""
+select v from Video v
+where (v.scheduled = false)
+   or (v.scheduled = true and v.scheduledAt <= :now)
+order by v.id desc
+""")
+    List<Video> findPublic(LocalDateTime now);
+
+
 
     @Query("""
         select v from Video v
