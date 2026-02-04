@@ -1,8 +1,6 @@
 package com.example.jutjubic.controller;
 
-import com.example.jutjubic.dto.CommentCreateRequest;
-import com.example.jutjubic.dto.CommentPublicDto;
-import com.example.jutjubic.dto.VideoPublicDto;
+import com.example.jutjubic.dto.*;
 import com.example.jutjubic.mapper.DtoMapper;
 import com.example.jutjubic.model.Video;
 import com.example.jutjubic.service.CommentService;
@@ -26,6 +24,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -100,11 +99,28 @@ public class VideoController {
     ) throws Exception {
 
         Video v = videoService.getById(id);
+        LocalDateTime now = LocalDateTime.now();
+        if (v.isScheduled() && v.getScheduledAt() != null &&
+                now.isBefore(v.getScheduledAt())) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
 
         if (v.getVideoPath() == null || v.getVideoPath().isBlank()) {
             return ResponseEntity.notFound().build();
         }
 
+        if (v.isScheduled() && v.getScheduledAt() != null) {
+            Integer dur = v.getDurationSeconds();
+            if (dur != null && dur > 0) {
+                LocalDateTime end = v.getScheduledAt().plusSeconds(dur);
+                if (!now.isBefore(end)) {
+
+                    return ResponseEntity.status(HttpStatus.GONE)
+                            .cacheControl(CacheControl.noStore())
+                            .build();
+                }
+            }
+        }
         Path path = Paths.get(v.getVideoPath());
         if (!Files.exists(path)) {
             return ResponseEntity.notFound().build();
@@ -152,6 +168,8 @@ public class VideoController {
         if (size > 100) size = 100;
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+
         Page<CommentPublicDto> result = commentService.getForVideoPaged(id, pageable);
         return ResponseEntity.ok(result);
     }
@@ -161,6 +179,7 @@ public class VideoController {
             @PathVariable Long id,
             @RequestBody CommentCreateRequest req
     ) {
+
         CommentPublicDto created = commentService.addComment(id, req.text());
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
@@ -191,6 +210,12 @@ public class VideoController {
     public long likeCount(@PathVariable Long id) {
         return videoLikeService.countForVideo(id);
     }
+
+    @GetMapping("/{id}/watch-info")
+    public ResponseEntity<WatchInfoDto> watchInfo(@PathVariable Long id) {
+        return ResponseEntity.ok(videoService.watchInfo(id));
+    }
+
 
 
 

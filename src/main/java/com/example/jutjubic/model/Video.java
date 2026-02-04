@@ -74,6 +74,11 @@ public class Video {
     @Column(name = "geohash", length = 12)
     private String geohash;
 
+    @Column(name = "premiere_ended", nullable = false)
+    private boolean premiereEnded = false;
+
+    @Column(name = "duration_seconds")
+    private Integer durationSeconds;
 
 
     public Video() {}
@@ -168,4 +173,20 @@ public class Video {
 
     public void setGeohash(String geohash) { this.geohash = geohash; }
 
+    public boolean isScheduled() { return scheduled; }
+    public void setScheduled(boolean scheduled) { this.scheduled = scheduled; }
+
+    public LocalDateTime getScheduledAt() { return scheduledAt; }
+    public void setScheduledAt(LocalDateTime scheduledAt) { this.scheduledAt = scheduledAt; }
+
+    public boolean isPremiereEnded() {
+        return premiereEnded;
+    }
+
+    public void setPremiereEnded(boolean premiereEnded) {
+        this.premiereEnded = premiereEnded;
+    }
+
+    public Integer getDurationSeconds() { return durationSeconds; }
+    public void setDurationSeconds(Integer durationSeconds) { this.durationSeconds = durationSeconds; }
 }

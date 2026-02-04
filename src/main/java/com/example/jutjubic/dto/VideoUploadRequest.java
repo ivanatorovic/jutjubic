@@ -1,5 +1,8 @@
 package com.example.jutjubic.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -11,6 +14,10 @@ public class VideoUploadRequest {
     private String location;
     private Double latitude;
     private Double longitude;
+    private boolean scheduled;
+
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    private LocalDateTime scheduledAt;
 
     public VideoUploadRequest() {
     }
@@ -52,4 +59,10 @@ public class VideoUploadRequest {
 
     public Double getLongitude() { return longitude; }
     public void setLongitude(Double longitude) { this.longitude = longitude; }
+
+    public boolean isScheduled() { return scheduled; }
+    public void setScheduled(boolean scheduled) { this.scheduled = scheduled; }
+
+    public LocalDateTime getScheduledAt() { return scheduledAt; }
+    public void setScheduledAt(LocalDateTime scheduledAt) { this.scheduledAt = scheduledAt; }
 }
