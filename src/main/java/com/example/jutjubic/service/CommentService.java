@@ -21,12 +21,19 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import io.github.bucket4j.Bandwidth;
+import io.github.bucket4j.Bucket;
+import io.github.bucket4j.Refill;
+
+import java.time.Duration;
+import java.util.concurrent.ConcurrentHashMap;
 @Service
 public class CommentService {
 
     private final CommentRepository commentRepository;
     private final VideoRepository videoRepository;
     private final UserRepository userRepository;
+    private final ConcurrentHashMap<String, Bucket> buckets = new ConcurrentHashMap<>();
 
     public CommentService(CommentRepository commentRepository,
                           VideoRepository videoRepository,
@@ -34,6 +41,13 @@ public class CommentService {
         this.commentRepository = commentRepository;
         this.videoRepository = videoRepository;
         this.userRepository = userRepository;
+    }
+
+    private Bucket resolveBucket(String userKey) {
+        return buckets.computeIfAbsent(userKey, k -> {
+            Bandwidth limit = Bandwidth.classic(60, Refill.intervally(60, Duration.ofHours(1)));
+            return Bucket.builder().addLimit(limit).build();
+        });
     }
 
     @Cacheable(
@@ -45,7 +59,6 @@ public class CommentService {
                 .map(DtoMapper::toCommentPublicDto);
     }
 
-    @Cacheable(cacheNames = "videoCommentCount", key = "#videoId")
     public long countForVideo(Long videoId) {
         return commentRepository.countByVideoId(videoId);
     }
@@ -66,6 +79,14 @@ public class CommentService {
 
         var user = userRepository.findByEmail(auth.getName())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Korisnik ne postoji."));
+
+        String key = user.getId().toString();
+        Bucket bucket = resolveBucket(key);
+
+        if (!bucket.tryConsume(1)) {
+            throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS,
+                    "Previše komentara. Dozvoljeno je 60 komentara na sat po nalogu.");
+        }
 
         Video video = videoRepository.findById(videoId)
                 .orElseThrow(() -> new NotFoundException("Video sa id=" + videoId + " ne postoji."));

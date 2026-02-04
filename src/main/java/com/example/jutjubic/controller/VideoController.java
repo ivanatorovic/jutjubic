@@ -75,22 +75,16 @@ public class VideoController {
 
     @GetMapping(value = "/{id}/thumbnail")
     public ResponseEntity<byte[]> getThumbnail(@PathVariable Long id) {
+
         byte[] bytes = videoService.getThumbnailBytes(id);
-
-
-        Video v = videoService.getById(id);
-        MediaType mediaType = MediaType.IMAGE_JPEG;
-        if (v.getThumbnailPath() != null) {
-            String p = v.getThumbnailPath().toLowerCase();
-            if (p.endsWith(".png")) mediaType = MediaType.IMAGE_PNG;
-            else if (p.endsWith(".jpg") || p.endsWith(".jpeg")) mediaType = MediaType.IMAGE_JPEG;
-        }
+        MediaType mediaType = videoService.getThumbnailMediaType(id);
 
         return ResponseEntity.ok()
                 .contentType(mediaType)
                 .cacheControl(CacheControl.noCache())
                 .body(bytes);
     }
+
 
 
     @GetMapping(value = "/{id}/stream", produces = "video/mp4")
@@ -101,11 +95,11 @@ public class VideoController {
 
         Video v = videoService.getById(id);
 
-        if (v.getVideoPath() == null || v.getVideoPath().isBlank()) {
+        Path path = videoService.resolveStreamPath(v);
+        if (path == null) {
             return ResponseEntity.notFound().build();
         }
 
-        Path path = Paths.get(v.getVideoPath());
         if (!Files.exists(path)) {
             return ResponseEntity.notFound().build();
         }
@@ -113,9 +107,8 @@ public class VideoController {
         Resource video = new FileSystemResource(path);
 
         long contentLength = video.contentLength();
-        long chunkSize = 1_000_000; // 1MB (može 512KB-2MB)
+        long chunkSize = 1_000_000; // 1MB
 
-        // Ako nema Range, pošalji prvi chunk (ili ceo fajl, ali chunk je bolje)
         if (headers.getRange() == null || headers.getRange().isEmpty()) {
             ResourceRegion region = new ResourceRegion(video, 0, Math.min(chunkSize, contentLength));
             return ResponseEntity.status(HttpStatus.PARTIAL_CONTENT)
@@ -125,7 +118,6 @@ public class VideoController {
                     .body(region);
         }
 
-        // Ako ima Range:
         HttpRange range = headers.getRange().get(0);
         long start = range.getRangeStart(contentLength);
         long end = range.getRangeEnd(contentLength);
@@ -140,6 +132,7 @@ public class VideoController {
                 .contentLength(region.getCount())
                 .body(region);
     }
+
 
 
     @GetMapping("/{id}/comments")

@@ -1,17 +1,18 @@
 package com.example.jutjubic.service;
+import com.example.jutjubic.config.RabbitConfig;
+import com.example.jutjubic.messaging.TranscodeRequestMessage;
 import com.example.jutjubic.dto.VideoPublicDto;
 import com.example.jutjubic.dto.VideoUploadRequest;
 import com.example.jutjubic.mapper.DtoMapper;
 import com.example.jutjubic.exception.BadRequestException;
 import com.example.jutjubic.exception.InternalException;
 import com.example.jutjubic.exception.NotFoundException;
+import com.example.jutjubic.model.TranscodeJob;
 import com.example.jutjubic.model.Video;
-import com.example.jutjubic.repository.CommentRepository;
-import com.example.jutjubic.repository.UserRepository;
-import com.example.jutjubic.repository.VideoLikeRepository;
-import com.example.jutjubic.repository.VideoRepository;
+import com.example.jutjubic.repository.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
+import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -22,7 +23,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import jakarta.servlet.http.HttpServletRequest;
 import com.example.jutjubic.util.GeoHash;
 
@@ -43,8 +43,8 @@ public class VideoService {
     private final VideoLikeService videoLikeService;
     private final CommentService commentService;
     private final IpGeoService ipGeoService;
-
-
+    private final TranscodeJobRepository transcodeJobRepository;
+    private final org.springframework.amqp.rabbit.core.RabbitTemplate rabbitTemplate;
 
 
     private static final long MAX_VIDEO_SIZE_BYTES = 200L * 1024 * 1024;
@@ -57,13 +57,15 @@ public class VideoService {
                         VideoLikeService videoLikeService,
                         CommentService commentService,
                         UserRepository userRepository,
-                        IpGeoService ipGeoService) {
+                        IpGeoService ipGeoService, TranscodeJobRepository transcodeJobRepository, org.springframework.amqp.rabbit.core.RabbitTemplate rabbitTemplate) {
         this.videoRepository = videoRepository;
         this.objectMapper = objectMapper;
         this.videoLikeService = videoLikeService;
         this.commentService = commentService;
         this.userRepository = userRepository;
         this.ipGeoService = ipGeoService;
+        this.transcodeJobRepository = transcodeJobRepository;
+        this.rabbitTemplate = rabbitTemplate;
     }
 
 
@@ -151,6 +153,26 @@ public class VideoService {
 
 
             Video saved = videoRepository.save(video);
+
+            TranscodeJob job = new TranscodeJob(saved, saved.getVideoPath());
+            TranscodeJob savedJob = transcodeJobRepository.save(job);
+
+            saved.setTranscodeStatus(Video.TranscodeStatus.TRANSCODING);
+            videoRepository.save(saved);
+
+            TranscodeRequestMessage msg = new TranscodeRequestMessage(
+                    savedJob.getJobId(),
+                    saved.getId(),
+                    saved.getVideoPath()
+            );
+
+            rabbitTemplate.convertAndSend(
+                    RabbitConfig.TRANSCODE_EXCHANGE,
+                    RabbitConfig.TRANSCODE_ROUTING_KEY,
+                    msg
+            );
+
+
             boolean testRollback = false;
             if (testRollback) {
                 throw new RuntimeException("Test rollback");
@@ -189,18 +211,47 @@ public class VideoService {
     public byte[] getThumbnailBytes(Long id) {
         Video v = getById(id);
 
-        if (v.getThumbnailPath() == null || v.getThumbnailPath().isBlank()) {
+        String path = null;
+
+        if (v.isThumbnailCompressed() && v.getThumbnailCompressedPath() != null
+                && !v.getThumbnailCompressedPath().isBlank()) {
+            path = v.getThumbnailCompressedPath();
+        } else if (v.getThumbnailPath() != null && !v.getThumbnailPath().isBlank()) {
+            path = v.getThumbnailPath();
+        }
+
+        if (path == null) {
             throw new RuntimeException("Video nema thumbnail.");
         }
 
         try {
             org.slf4j.LoggerFactory.getLogger(VideoService.class)
-                    .info("Reading thumbnail from disk for videoId={}", id);
+                    .info("Reading thumbnail from disk for videoId={}, path={}", id, path);
 
-            return Files.readAllBytes(Paths.get(v.getThumbnailPath()));
+            return Files.readAllBytes(Paths.get(path));
         } catch (IOException e) {
             throw new RuntimeException("Ne mogu da pročitam thumbnail sa diska.", e);
         }
+    }
+
+    public MediaType getThumbnailMediaType(Long id) {
+        Video v = getById(id);
+        String path = resolveThumbnailPath(v);
+
+        String p = path.toLowerCase();
+        if (p.endsWith(".png")) return MediaType.IMAGE_PNG;
+        if (p.endsWith(".jpg") || p.endsWith(".jpeg")) return MediaType.IMAGE_JPEG;
+
+        return MediaType.IMAGE_JPEG;
+    }
+
+    private String resolveThumbnailPath(Video v) {
+        if (v.isThumbnailCompressed()
+                && v.getThumbnailCompressedPath() != null
+                && !v.getThumbnailCompressedPath().isBlank()) {
+            return v.getThumbnailCompressedPath();
+        }
+        return v.getThumbnailPath();
     }
 
 
@@ -278,7 +329,19 @@ public class VideoService {
         return request.getRemoteAddr();
     }
 
+    public Path resolveStreamPath(Video v) {
+        if (v.getTranscodeStatus() == Video.TranscodeStatus.READY
+                && v.getTranscodedPath() != null
+                && !v.getTranscodedPath().isBlank()) {
+            return Paths.get(v.getTranscodedPath());
+        }
 
+        if (v.getVideoPath() != null && !v.getVideoPath().isBlank()) {
+            return Paths.get(v.getVideoPath());
+        }
+
+        return null;
+    }
 
 
 }

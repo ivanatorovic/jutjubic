@@ -5,15 +5,19 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "transcode_jobs")
+@Table(
+        name = "transcode_jobs",
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uq_transcode_job_video", columnNames = {"video_id"})
+        },
+        indexes = {
+                @Index(name = "idx_transcode_status", columnList = "status"),
+                @Index(name = "idx_transcode_video", columnList = "video_id")
+        }
+)
 public class TranscodeJob {
 
-    public enum Status {
-        PENDING,
-        PROCESSING,
-        DONE,
-        FAILED
-    }
+    public enum Status { PENDING, PROCESSING, DONE, FAILED }
 
     @Id
     @Column(name = "job_id", nullable = false, updatable = false)
@@ -34,7 +38,7 @@ public class TranscodeJob {
     private String consumerId;
 
     @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt;
 
     @Column(name = "started_at")
     private LocalDateTime startedAt;
@@ -45,14 +49,19 @@ public class TranscodeJob {
     @Column(name = "error_message", columnDefinition = "TEXT")
     private String errorMessage;
 
-    public TranscodeJob() {}
+    protected TranscodeJob() {}
 
-    public TranscodeJob(UUID jobId, Video video, String inputPath) {
-        this.jobId = jobId;
+    public TranscodeJob(Video video, String inputPath) {
         this.video = video;
         this.inputPath = inputPath;
         this.status = Status.PENDING;
-        this.createdAt = LocalDateTime.now();
+    }
+
+    @PrePersist
+    void prePersist() {
+        if (this.jobId == null) this.jobId = UUID.randomUUID();
+        if (this.createdAt == null) this.createdAt = LocalDateTime.now();
+        if (this.status == null) this.status = Status.PENDING;
     }
 
     public void markProcessing(String consumerId) {
@@ -60,6 +69,7 @@ public class TranscodeJob {
         this.consumerId = consumerId;
         this.startedAt = LocalDateTime.now();
         this.errorMessage = null;
+        this.finishedAt = null;
     }
 
     public void markDone() {
@@ -75,29 +85,15 @@ public class TranscodeJob {
 
 
     public UUID getJobId() { return jobId; }
-    public void setJobId(UUID jobId) { this.jobId = jobId; }
-
     public Video getVideo() { return video; }
-    public void setVideo(Video video) { this.video = video; }
-
     public String getInputPath() { return inputPath; }
-    public void setInputPath(String inputPath) { this.inputPath = inputPath; }
-
     public Status getStatus() { return status; }
-    public void setStatus(Status status) { this.status = status; }
-
     public String getConsumerId() { return consumerId; }
-    public void setConsumerId(String consumerId) { this.consumerId = consumerId; }
-
     public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
-
     public LocalDateTime getStartedAt() { return startedAt; }
-    public void setStartedAt(LocalDateTime startedAt) { this.startedAt = startedAt; }
-
     public LocalDateTime getFinishedAt() { return finishedAt; }
-    public void setFinishedAt(LocalDateTime finishedAt) { this.finishedAt = finishedAt; }
-
     public String getErrorMessage() { return errorMessage; }
-    public void setErrorMessage(String errorMessage) { this.errorMessage = errorMessage; }
+
+    public void setVideo(Video video) { this.video = video; }
+    public void setInputPath(String inputPath) { this.inputPath = inputPath; }
 }

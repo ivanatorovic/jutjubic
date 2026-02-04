@@ -19,7 +19,9 @@ VALUES
 
 INSERT INTO videos (
     title, description, video_path, thumbnail_path, user_id, created_at, view_count,
-    scheduled, scheduled_at, location, latitude, longitude, size_mb
+    scheduled, scheduled_at, location, latitude, longitude, size_mb,
+    transcode_status, transcoded_path,
+    thumbnail_compressed, thumbnail_compressed_path
 )
 VALUES
     ('Nauci da sviras klavir', 'opis',
@@ -28,7 +30,9 @@ VALUES
      3,
      NOW() - INTERVAL '5 days', 34,
      false, NULL,
-     'Beograd', 44.7866, 20.4489, 30),
+     'Beograd', 44.7866, 20.4489, 30,
+     'TRANSCODING', NULL,
+     false, NULL),
 
     ('Umirujuce more', 'Letnji video sa mora koji prikazuje plažu, talase i opuštenu atmosferu. Kratak klip koji dočarava letnji odmor i sunce.',
      'storage\\videos\\855633-hd_1920_1080_25fps.mp4',
@@ -36,7 +40,9 @@ VALUES
      1,
      NOW() - INTERVAL '4 days 3 hours', 15,
      false, NULL,
-     'Nis', 43.3209, 21.8958, 20),
+     'Nis', 43.3209, 21.8958, 20,
+     'TRANSCODING', NULL,
+     false, NULL),
 
     ('Poslovni razgovor', 'Još jedan video',
      'storage\\videos\\5725960-uhd_3840_2160_30fps.mp4',
@@ -44,7 +50,9 @@ VALUES
      1,
      NOW() - INTERVAL '4 days 3 hours', 47,
      false, NULL,
-     'Novi Sad', 45.2671, 19.8335, 25),
+     'Novi Sad', 45.2671, 19.8335, 25,
+     'TRANSCODING', NULL,
+     false, NULL),
 
     ('Trening kod kuce', 'Još jedan video',
      'storage\\videos\\293085_small.mp4',
@@ -52,7 +60,9 @@ VALUES
      4,
      NOW() - INTERVAL '3 days', 7,
      false, NULL,
-     'Beograd', 44.7866, 20.4489, 29),
+     'Beograd', 44.7866, 20.4489, 29,
+     'TRANSCODING', NULL,
+     false, NULL),
 
     ('Priprema hrane', 'Jednostavan video pripreme hrane uz praktične savete i brz proces. Ideje za svakodnevne obroke i laganu kuhinju.',
      'storage\\videos\\2620043-uhd_3840_2160_25fps.mp4',
@@ -60,7 +70,9 @@ VALUES
      2,
      NOW() - INTERVAL '2 days 6 hours', 22,
      false, NULL,
-     'Kragujevac', 44.0128, 20.9114, 12),
+     'Kragujevac', 44.0128, 20.9114, 12,
+     'TRANSCODING', NULL,
+     false, NULL),
 
     ('Potcast', 'Opušten razgovor u podcast studiju na zanimljivu temu.',
      'storage\\videos\\coverr-a-man-happily-talks-on-a-virtual-meeting-9706-1080p.mp4',
@@ -68,7 +80,9 @@ VALUES
      5,
      NOW() - INTERVAL '1 day', 204,
      false, NULL,
-     'Novi Sad', 45.2671, 19.8335, 15),
+     'Novi Sad', 45.2671, 19.8335, 15,
+     'TRANSCODING', NULL,
+     false, NULL),
 
     ('Voznja bicikla', 'Još jedan video',
      'storage\\videos\\3683308-uhd_3840_2160_24fps.mp4',
@@ -76,7 +90,9 @@ VALUES
      1,
      NOW() - INTERVAL '20 hours', 12,
      false, NULL,
-     'Novi Sad', 45.2671, 19.8335, 4),
+     'Novi Sad', 45.2671, 19.8335, 4,
+     'TRANSCODING', NULL,
+     false, NULL),
 
     ('Kako nasminkati oci', 'Još jedan video',
      'storage\\videos\\3181592-uhd_3840_2160_25fps.mp4',
@@ -84,7 +100,9 @@ VALUES
      2,
      NOW() - INTERVAL '8 hours', 57,
      false, NULL,
-     'Beograd', 44.7866, 20.4489, 12),
+     'Beograd', 44.7866, 20.4489, 12,
+     'TRANSCODING', NULL,
+     false, NULL),
 
     ('Skijanje', 'Kratak video sa skijanja koji prikazuje zimsku atmosferu, sneg i uživanje na stazi. Savršen prikaz zimskog odmora i adrenalina.',
      'storage\\videos\\4274798-uhd_3840_2160_25fps.mp4',
@@ -92,7 +110,9 @@ VALUES
      3,
      NOW() - INTERVAL '1 hour', 32,
      false, NULL,
-     'Novi Sad', 45.2671, 19.8335, 32),
+     'Novi Sad', 45.2671, 19.8335, 32,
+     'TRANSCODING', NULL,
+     false, NULL),
 
     ('Bozicna atmosfera', 'Topla praznična atmosfera uz svetla, ukrase i božićni duh. Kratak video koji dočarava mir i radost praznika.',
      'storage\\videos\\855167-hd_1920_1080_30fps.mp4',
@@ -100,7 +120,9 @@ VALUES
      2,
      NOW() - INTERVAL '1 hour', 126,
      false, NULL,
-     'Subotica', 46.1005, 19.6656, 27),
+     'Subotica', 46.1005, 19.6656, 27,
+     'TRANSCODING', NULL,
+     false, NULL),
 
     ('Avion', 'Pogled iz aviona tokom poletanja i sletanja, uz osećaj putovanja i slobode. Kratak klip savršen za ljubitelje avijacije.',
      'storage\\videos\\3678380-hd_1920_1080_30fps.mp4',
@@ -108,7 +130,9 @@ VALUES
      2,
      NOW() - INTERVAL '1 hour', 100,
      false, NULL,
-     'Beograd (Aerodrom)', 44.8184, 20.3091, 22),
+     'Beograd (Aerodrom)', 44.8184, 20.3091, 22,
+     'TRANSCODING', NULL,
+     false, NULL),
 
     ('Ajfelov toranj', 'Kratak video čuvenog Ajfelovog tornja u Parizu, snimljen iz grada. Ikona romantike i putovanja.',
      'storage\\videos\\6355353-hd_1920_1080_30fps.mp4',
@@ -116,7 +140,11 @@ VALUES
      4,
      NOW() - INTERVAL '1 hour', 254,
      false, NULL,
-     'Pariz', 48.8566, 2.3522, 34);
+     'Pariz', 48.8566, 2.3522, 34,
+     'TRANSCODING', NULL,
+     false, NULL);
+
+
 
 
 

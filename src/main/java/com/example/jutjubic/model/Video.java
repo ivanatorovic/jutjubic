@@ -10,6 +10,9 @@ import java.util.List;
 @Table(name = "videos")
 public class Video {
 
+    public enum TranscodeStatus { UPLOADED, TRANSCODING, READY, FAILED }
+
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -61,6 +64,9 @@ public class Video {
     @Column(name = "scheduled_at")
     private LocalDateTime scheduledAt;
 
+    @Column(name = "thumbnail_compressed")
+    private boolean thumbnailCompressed;
+
     @Column(name = "thumbnail_compressed_path")
     private String thumbnailCompressedPath;
 
@@ -74,9 +80,20 @@ public class Video {
     @Column(name = "geohash", length = 12)
     private String geohash;
 
+    @OneToMany(mappedBy = "video")
+    private List<TranscodeJob> transcodeJobs;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "transcode_status", nullable = false, length = 20)
+    private TranscodeStatus transcodeStatus = TranscodeStatus.UPLOADED;
+
+    @Column(name = "transcoded_path")
+    private String transcodedPath;
 
 
-    public Video() {}
+    public Video() {
+
+    }
 
     public Video(String title,
                  String description,
@@ -89,7 +106,7 @@ public class Video {
                  LocalDateTime scheduledAt,
                  User user,
                  Double latitude,
-                 Double longitude) {
+                 Double longitude, boolean thumbnailCompressed, String thumbnailCompressedPath) {
 
         this.title = title;
         this.description = description;
@@ -101,6 +118,8 @@ public class Video {
         this.scheduled = scheduled;
         this.scheduledAt = scheduledAt;
         this.user = user;
+        this.thumbnailCompressed = thumbnailCompressed;
+        this.thumbnailCompressedPath = thumbnailCompressedPath;
     }
 
 
@@ -167,5 +186,37 @@ public class Video {
     public String getGeohash() { return geohash; }
 
     public void setGeohash(String geohash) { this.geohash = geohash; }
+
+    public TranscodeStatus getTranscodeStatus() {
+        return transcodeStatus;
+    }
+
+    public void setTranscodeStatus(TranscodeStatus transcodeStatus) {
+        this.transcodeStatus = transcodeStatus;
+    }
+
+    public String getTranscodedPath() {
+        return transcodedPath;
+    }
+
+    public void setTranscodedPath(String transcodedPath) {
+        this.transcodedPath = transcodedPath;
+    }
+
+    public boolean isThumbnailCompressed() {
+        return thumbnailCompressed;
+    }
+
+    public void setThumbnailCompressed(boolean thumbnailCompressed) {
+        this.thumbnailCompressed = thumbnailCompressed;
+    }
+
+    public String getThumbnailCompressedPath() {
+        return thumbnailCompressedPath;
+    }
+
+    public void setThumbnailCompressedPath(String thumbnailCompressedPath) {
+        this.thumbnailCompressedPath = thumbnailCompressedPath;
+    }
 
 }

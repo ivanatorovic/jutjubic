@@ -4,6 +4,7 @@ import com.example.jutjubic.model.Video;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface VideoRepository extends JpaRepository<Video, Long>, VideoRepositoryCustom {
@@ -33,5 +34,14 @@ public interface VideoRepository extends JpaRepository<Video, Long>, VideoReposi
             String p5, String p6, String p7, String p8,
             int limit
     );
+
+
+    @Query("""
+        select v from Video v
+        where v.thumbnailCompressed = false
+          and v.thumbnailPath is not null
+          and v.createdAt <= :cutoff
+    """)
+    List<Video> findThumbnailsToCompress(LocalDateTime cutoff);
 
 }
