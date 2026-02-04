@@ -56,7 +56,7 @@ public class WebSecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/trending").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/whoami").permitAll()
                 .requestMatchers("/ws/**").permitAll()
-                .requestMatchers("/actuator/health", "/actuator/info").permitAll()
+                .requestMatchers("/actuator/health/**", "/actuator/info").permitAll()
 
                 .anyRequest().authenticated()
         );
