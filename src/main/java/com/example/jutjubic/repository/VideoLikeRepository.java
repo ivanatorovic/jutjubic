@@ -14,10 +14,10 @@ public interface VideoLikeRepository extends JpaRepository<VideoLike, Long> {
 
     Optional<VideoLike> findByVideo_IdAndUser_Id(Long videoId, Long userId);
 
-    // ovo ti može ostati za single-video slučajeve
+
     long countByVideoId(Long videoId);
 
-    // ✅ batch counts za trending (bez N+1)
+
     @Query("""
         select vl.video.id as videoId, count(vl.id) as cnt
         from VideoLike vl

@@ -49,7 +49,7 @@ public final class GeoHash {
         return hash.toString();
     }
 
-    /** Vraća opseg (bounding box) geohash ćelije: [minLat, maxLat, minLon, maxLon] */
+
     public static double[] decodeBbox(String geohash) {
         double minLat = -90.0, maxLat = 90.0;
         double minLon = -180.0, maxLon = 180.0;
@@ -72,9 +72,9 @@ public final class GeoHash {
         return new double[]{minLat, maxLat, minLon, maxLon};
     }
 
-    /** Heuristika: nađi najveću preciznost gde je ćelija bar “otprilike” veličine radijusa */
+
     public static int choosePrecisionForRadiusKm(double lat, double lon, double radiusKm) {
-        // opseg: 2..8 ti je sasvim dovoljno za ovaj projekat
+
         for (int p = 8; p >= 2; p--) {
             String h = encode(lat, lon, p);
             double[] bb = decodeBbox(h);
@@ -94,7 +94,7 @@ public final class GeoHash {
         return 2;
     }
 
-    /** 9 prefixa: centar + 8 suseda (uzimamo tačke pomerene za veličinu ćelije) */
+
     public static Set<String> neighborPrefixes(double lat, double lon, int precision) {
         String center = encode(lat, lon, precision);
         double[] bb = decodeBbox(center);
