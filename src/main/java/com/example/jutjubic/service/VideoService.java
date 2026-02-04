@@ -338,7 +338,6 @@ public class VideoService {
 
         registerView(id);
 
-        Video v = getById(id);
         return DtoMapper.toVideoPublicDto(
                 v,
                 videoLikeService.countForVideo(v.getId()),

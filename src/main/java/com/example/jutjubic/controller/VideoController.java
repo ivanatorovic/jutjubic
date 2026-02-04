@@ -115,10 +115,6 @@ public class VideoController {
                 }
             }
         }
-        Path path = Paths.get(v.getVideoPath());
-        if (!Files.exists(path)) {
-            return ResponseEntity.notFound().build();
-        }
 
         Resource video = new FileSystemResource(path);
 
