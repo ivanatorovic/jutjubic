@@ -203,6 +203,11 @@ public class VideoController {
         return ResponseEntity.ok(videoService.watchInfo(id));
     }
 
+    @PostMapping("/{id}/premiere-ended")
+    public ResponseEntity<Void> markPremiereEnded(@PathVariable Long id) {
+        videoService.markPremiereEnded(id);
+        return ResponseEntity.noContent().build();
+    }
 
 
 
