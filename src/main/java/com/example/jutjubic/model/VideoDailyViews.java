@@ -1,14 +1,16 @@
 package com.example.jutjubic.model;
 
 import jakarta.persistence.*;
-
 import java.time.LocalDate;
 
 @Entity
 @Table(
         name = "video_daily_views",
+        indexes = {
+                @Index(name = "idx_vdv_view_date", columnList = "view_date"),
+                @Index(name = "idx_vdv_video_date", columnList = "video_id, view_date")
+        },
         uniqueConstraints = {
-                // jedan zapis po (video, datum)
                 @UniqueConstraint(
                         name = "uq_video_date",
                         columnNames = {"video_id", "view_date"}
@@ -21,20 +23,20 @@ public class VideoDailyViews {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // video za koji beležimo preglede
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "video_id", nullable = false)
     private Video video;
 
-    // datum (bez vremena!)
+
     @Column(name = "view_date", nullable = false)
     private LocalDate viewDate;
 
-    // broj pregleda tog dana
+
     @Column(name = "views_count", nullable = false)
     private long viewsCount = 0;
 
-    public VideoDailyViews() {}
+    protected VideoDailyViews() {}
 
     public VideoDailyViews(Video video, LocalDate viewDate) {
         this.video = video;
@@ -53,7 +55,5 @@ public class VideoDailyViews {
     public long getViewsCount() { return viewsCount; }
     public void setViewsCount(long viewsCount) { this.viewsCount = viewsCount; }
 
-    public void increment() {
-        this.viewsCount++;
-    }
+    public void increment() { this.viewsCount++; }
 }

@@ -27,6 +27,8 @@ import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import jakarta.servlet.http.HttpServletRequest;
 import com.example.jutjubic.util.GeoHash;
 
+
+
 import java.io.IOException;
 import java.nio.file.*;
 import java.time.LocalDateTime;
@@ -48,6 +50,7 @@ public class VideoService {
     private final IpGeoService ipGeoService;
     private final TranscodeJobRepository transcodeJobRepository;
     private final org.springframework.amqp.rabbit.core.RabbitTemplate rabbitTemplate;
+    private final VideoDailyViewsRepository dailyViewsRepo;
 
 
     private static final long MAX_VIDEO_SIZE_BYTES = 200L * 1024 * 1024;
@@ -60,7 +63,7 @@ public class VideoService {
                         VideoLikeService videoLikeService,
                         CommentService commentService,
                         UserRepository userRepository,
-                        IpGeoService ipGeoService, TranscodeJobRepository transcodeJobRepository, org.springframework.amqp.rabbit.core.RabbitTemplate rabbitTemplate) {
+                        IpGeoService ipGeoService, TranscodeJobRepository transcodeJobRepository, org.springframework.amqp.rabbit.core.RabbitTemplate rabbitTemplate, VideoDailyViewsRepository dailyViewsRepo) {
         this.videoRepository = videoRepository;
         this.objectMapper = objectMapper;
         this.videoLikeService = videoLikeService;
@@ -69,6 +72,7 @@ public class VideoService {
         this.ipGeoService = ipGeoService;
         this.transcodeJobRepository = transcodeJobRepository;
         this.rabbitTemplate = rabbitTemplate;
+        this.dailyViewsRepo = dailyViewsRepo;
     }
 
 
@@ -136,7 +140,6 @@ public class VideoService {
             video.setSizeMB(videoFile.getSize() / 1024 / 1024);
             video.setCreatedAt(LocalDateTime.now());
             video.setUser(uploader);
-            // ✅ scheduled publish logika
             if (info.isScheduled()) {
                 if (info.getScheduledAt() == null) {
                     throw new BadRequestException("Morate uneti datum i vreme za zakazani video.");
@@ -151,8 +154,7 @@ public class VideoService {
                 video.setScheduledAt(null);
             }
 
-            // ✅ upiši koordinate ako su poslate
-            // ✅ GEO: browser ako ima, inače IP fallback (S2 logika za upload)
+
             if (info.getLatitude() != null && info.getLongitude() != null) {
                 video.setLatitude(info.getLatitude());
                 video.setLongitude(info.getLongitude());
@@ -163,7 +165,7 @@ public class VideoService {
                 video.setLongitude(p.lon());
             }
 
-            int geoPrecision = 8; // čuvamo punu preciznost
+            int geoPrecision = 8;
             video.setGeohash(
                     GeoHash.encode(video.getLatitude(), video.getLongitude(), geoPrecision)
             );
@@ -326,7 +328,9 @@ public class VideoService {
         int updated = videoRepository.incrementViewCount(videoId);
         if (updated == 0) {
             throw new NotFoundException("Video sa id=" + videoId + " ne postoji.");
+
         }
+        dailyViewsRepo.incrementToday(videoId);
     }
     public VideoPublicDto getDtoById(Long id) {
         Video v = getById(id);
@@ -371,11 +375,10 @@ public class VideoService {
     public void markPremiereEnded(Long id) {
         Video v = videoRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-        if (!v.isScheduled()) { // ako koristiš scheduled kao "premijera"
-            return; // ili baci 400, kako želiš
+        if (!v.isScheduled()) {
+            return;
         }
         v.setPremiereEnded(true);
-        // save nije ni potreban u JPA transakciji, ali može:
         videoRepository.save(v);
     }
 
@@ -385,7 +388,7 @@ public class VideoService {
 
         LocalDateTime now = LocalDateTime.now();
 
-        // običan video → nije premijera
+
         if (!v.isScheduled() || v.getScheduledAt() == null) {
             return new WatchInfoDto(
                     now,
@@ -395,7 +398,7 @@ public class VideoService {
             );
         }
 
-        // premijera
+
         LocalDateTime start = v.getScheduledAt();
         Integer dur = v.getDurationSeconds();
 
