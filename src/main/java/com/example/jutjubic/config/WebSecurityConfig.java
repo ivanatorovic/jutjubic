@@ -3,6 +3,8 @@ package com.example.jutjubic.config;
 import com.example.jutjubic.security.LoginRateLimitFilter;
 import com.example.jutjubic.security.TokenAuthenticationFilter;
 import com.example.jutjubic.security.RestAuthenticationEntryPoint;
+import com.example.jutjubic.service.ActiveUserTrackingFilter;
+import com.example.jutjubic.service.ActiveUsers24hMetrics;
 import com.example.jutjubic.util.TokenUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -40,9 +42,16 @@ public class WebSecurityConfig {
     }
 
     @Bean
+    public ActiveUserTrackingFilter activeUserTrackingFilter(ActiveUsers24hMetrics metrics) {
+        return new ActiveUserTrackingFilter(metrics);
+    }
+
+
+    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http,
                                            LoginRateLimitFilter loginRateLimitFilter,
-                                           TokenAuthenticationFilter tokenAuthenticationFilter) throws Exception {
+                                           TokenAuthenticationFilter tokenAuthenticationFilter,
+                                           ActiveUserTrackingFilter activeUserTrackingFilter) throws Exception {
 
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         http.exceptionHandling(ex -> ex.authenticationEntryPoint(restAuthenticationEntryPoint));
@@ -56,7 +65,7 @@ public class WebSecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/trending").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/whoami").permitAll()
                 .requestMatchers("/ws/**").permitAll()
-                .requestMatchers("/actuator/health/**", "/actuator/info").permitAll()
+                .requestMatchers("/actuator/health/**","/actuator/prometheus", "/actuator/info").permitAll()
 
                 .anyRequest().authenticated()
         );
@@ -66,6 +75,7 @@ public class WebSecurityConfig {
 
 
         http.addFilterBefore(loginRateLimitFilter, TokenAuthenticationFilter.class);
+        http.addFilterAfter(activeUserTrackingFilter, TokenAuthenticationFilter.class);
 
         return http.build();
     }
