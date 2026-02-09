@@ -331,7 +331,6 @@ public class VideoService {
     public VideoPublicDto getDtoById(Long id) {
         Video v = getById(id);
 
-        // scheduled gate:
         if (v.isScheduled() && v.getScheduledAt() != null && LocalDateTime.now().isBefore(v.getScheduledAt())) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Video još nije dostupan.");
         }

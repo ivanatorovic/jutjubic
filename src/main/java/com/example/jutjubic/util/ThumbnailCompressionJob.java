@@ -29,7 +29,7 @@ public class ThumbnailCompressionJob {
         this.cacheManager = cacheManager;
     }
 
-    @Scheduled(cron = "0 50 13 * * *")
+    @Scheduled(cron = "0 0 2 * * *")
     public void run() {
         LocalDateTime cutoff = LocalDateTime.now().minus(1, ChronoUnit.DAYS);
 
