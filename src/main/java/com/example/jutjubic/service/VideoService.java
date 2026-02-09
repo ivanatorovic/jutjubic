@@ -62,8 +62,8 @@ public class VideoService {
                         VideoLikeService videoLikeService,
                         CommentService commentService,
                         UserRepository userRepository,
-                        IpGeoService ipGeoService, TranscodeJobRepository transcodeJobRepository, org.springframework.amqp.rabbit.core.RabbitTemplate rabbitTemplate, VideoDailyViewsRepository dailyViewsRepo) {
-                        IpGeoService ipGeoService, TranscodeJobRepository transcodeJobRepository, org.springframework.amqp.rabbit.core.RabbitTemplate rabbitTemplate, com.example.jutjubic.messaging.UploadEventPublisher uploadEventPublisher) {
+                        IpGeoService ipGeoService, TranscodeJobRepository transcodeJobRepository, org.springframework.amqp.rabbit.core.RabbitTemplate rabbitTemplate, VideoDailyViewsRepository dailyViewsRepo,
+                       com.example.jutjubic.messaging.UploadEventPublisher uploadEventPublisher) {
         this.videoRepository = videoRepository;
         this.objectMapper = objectMapper;
         this.videoLikeService = videoLikeService;
