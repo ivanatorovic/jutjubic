@@ -26,7 +26,7 @@ services:
       SPRING_RABBITMQ_PORT: 5672
       SPRING_RABBITMQ_USERNAME: guest
       SPRING_RABBITMQ_PASSWORD: guest
-      SPRING_RABBITMQ_LISTENER_SIMPLE_AUTO_STARTUP: "false"
+      SPRING_RABBITMQ_LISTENER_SIMPLE_AUTO_STARTUP: "true"
     depends_on:
       - db
     expose:
@@ -48,7 +48,7 @@ services:
       SPRING_RABBITMQ_PORT: 5672
       SPRING_RABBITMQ_USERNAME: guest
       SPRING_RABBITMQ_PASSWORD: guest
-      SPRING_RABBITMQ_LISTENER_SIMPLE_AUTO_STARTUP: "false"
+      SPRING_RABBITMQ_LISTENER_SIMPLE_AUTO_STARTUP: "true"
     depends_on:
       - db
     expose:

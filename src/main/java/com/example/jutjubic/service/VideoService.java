@@ -49,6 +49,7 @@ public class VideoService {
     private final TranscodeJobRepository transcodeJobRepository;
     private final org.springframework.amqp.rabbit.core.RabbitTemplate rabbitTemplate;
 
+    private final com.example.jutjubic.messaging.UploadEventPublisher uploadEventPublisher;
 
     private static final long MAX_VIDEO_SIZE_BYTES = 200L * 1024 * 1024;
 
@@ -60,7 +61,7 @@ public class VideoService {
                         VideoLikeService videoLikeService,
                         CommentService commentService,
                         UserRepository userRepository,
-                        IpGeoService ipGeoService, TranscodeJobRepository transcodeJobRepository, org.springframework.amqp.rabbit.core.RabbitTemplate rabbitTemplate) {
+                        IpGeoService ipGeoService, TranscodeJobRepository transcodeJobRepository, org.springframework.amqp.rabbit.core.RabbitTemplate rabbitTemplate, com.example.jutjubic.messaging.UploadEventPublisher uploadEventPublisher) {
         this.videoRepository = videoRepository;
         this.objectMapper = objectMapper;
         this.videoLikeService = videoLikeService;
@@ -69,6 +70,7 @@ public class VideoService {
         this.ipGeoService = ipGeoService;
         this.transcodeJobRepository = transcodeJobRepository;
         this.rabbitTemplate = rabbitTemplate;
+        this.uploadEventPublisher = uploadEventPublisher;
     }
 
 
@@ -179,6 +181,8 @@ public class VideoService {
 
             saved.setTranscodeStatus(Video.TranscodeStatus.TRANSCODING);
             videoRepository.save(saved);
+            uploadEventPublisher.publishBoth(saved);
+
 
             TranscodeRequestMessage msg = new TranscodeRequestMessage(
                     savedJob.getJobId(),
