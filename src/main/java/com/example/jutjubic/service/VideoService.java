@@ -314,15 +314,19 @@ public class VideoService {
     }
 
     public List<VideoPublicDto> findAllNewestFirst() {
-        List<Video> videos = videoRepository.findAll(Sort.by(Sort.Direction.DESC, "id"));
+        LocalDateTime now = LocalDateTime.now();
+
+        List<Video> videos = videoRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"));
+
         return videos.stream()
-                .map(v -> DtoMapper.toVideoPublicDto(
-                        v,
-                        videoLikeService.countForVideo(v.getId()),
-                        commentService.countForVideo(v.getId())
-                ))
+                .map(v -> {
+                    long likeCount = videoLikeService.countForVideo(v.getId());
+                    long commentCount = commentService.countForVideo(v.getId());
+                    return DtoMapper.toVideoPublicDto(v, likeCount, commentCount, now);
+                })
                 .toList();
     }
+
 
     public void registerView(Long videoId) {
         int updated = videoRepository.incrementViewCount(videoId);
@@ -345,7 +349,8 @@ public class VideoService {
         return DtoMapper.toVideoPublicDto(
                 v,
                 videoLikeService.countForVideo(v.getId()),
-                commentService.countForVideo(v.getId())
+                commentService.countForVideo(v.getId()),
+                LocalDateTime.now()
         );
     }
 

@@ -27,7 +27,7 @@ public class PopularityEtlService {
     }
 
     @Transactional
-    @Scheduled(cron = "0 9 16 * * *")
+    @Scheduled(cron = "0 45 8 * * *")
     public void runDaily() {
         var rows = dailyRepo.findTop3WeightedLast7Days();
         System.out.println("ETL rows=" + rows.size());

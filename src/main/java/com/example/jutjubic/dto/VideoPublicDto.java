@@ -15,5 +15,8 @@ public record VideoPublicDto(
         String username,
         long likeCount,
         long commentCount,
-        long viewCount
+        long viewCount,
+        LocalDateTime scheduledAt,
+        Integer durationSeconds,
+        PremiereStatus status
 ) {}
