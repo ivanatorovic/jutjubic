@@ -31,6 +31,13 @@
 		</dependency>
 
 		<dependency>
+			<groupId>com.google.protobuf</groupId>
+			<artifactId>protobuf-java</artifactId>
+			<version>3.25.5</version>
+		</dependency>
+
+
+		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-websocket</artifactId>
 		</dependency>
@@ -149,11 +156,43 @@
 
 
 	<build>
+
+		<!-- ✅ potrebno da bismo dobili ${os.detected.classifier} (Windows/Linux/Mac) -->
+		<extensions>
+			<extension>
+				<groupId>kr.motd.maven</groupId>
+				<artifactId>os-maven-plugin</artifactId>
+				<version>1.7.1</version>
+			</extension>
+		</extensions>
+
 		<plugins>
+
+			<!-- ✅ PROTOBUF генерација из src/main/proto -->
+			<plugin>
+				<groupId>org.xolstice.maven.plugins</groupId>
+				<artifactId>protobuf-maven-plugin</artifactId>
+				<version>0.6.1</version>
+				<configuration>
+					<protocArtifact>
+						com.google.protobuf:protoc:3.25.5:exe:${os.detected.classifier}
+					</protocArtifact>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>compile</goal>
+							<goal>test-compile</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
+
 			<plugin>
 				<groupId>org.jetbrains.kotlin</groupId>
 				<artifactId>kotlin-maven-plugin</artifactId>
@@ -168,10 +207,15 @@
 						<configuration>
 							<sourceDirs>
 								<sourceDir>src/main/java</sourceDir>
+
+								<!-- ✅ додај и protobuf генерисане сорсеве -->
+								<sourceDir>target/generated-sources/protobuf/java</sourceDir>
+
 								<sourceDir>target/generated-sources/annotations</sourceDir>
 							</sourceDirs>
 						</configuration>
 					</execution>
+
 					<execution>
 						<id>test-compile</id>
 						<phase>test-compile</phase>
@@ -181,15 +225,20 @@
 						<configuration>
 							<sourceDirs>
 								<sourceDir>src/test/java</sourceDir>
+
+								<!-- ✅ ако икад генеришеш test proto -->
+								<sourceDir>target/generated-test-sources/protobuf/java</sourceDir>
+
 								<sourceDir>target/generated-test-sources/test-annotations</sourceDir>
 							</sourceDirs>
 						</configuration>
 					</execution>
 				</executions>
 				<configuration>
-					<jvmTarget>1.8</jvmTarget>
+					<jvmTarget>17</jvmTarget>
 				</configuration>
 			</plugin>
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -218,7 +267,9 @@
 					</execution>
 				</executions>
 			</plugin>
+
 		</plugins>
 	</build>
+
 
 </project>
