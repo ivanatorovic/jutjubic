@@ -1,8 +1,6 @@
 BEGIN;
 
--- =========================
--- 1) TABLES (SCHEMA)
--- =========================
+
 
 CREATE TABLE IF NOT EXISTS users (
                                      id              BIGSERIAL PRIMARY KEY,
@@ -21,7 +19,7 @@ CREATE TABLE IF NOT EXISTS videos (
                                       id                        BIGSERIAL PRIMARY KEY,
                                       title                     VARCHAR(255) NOT NULL,
     description               TEXT NOT NULL,
-    tags                      TEXT, -- (ne koristiš direktno; stvarni tagovi su u video_tags)
+    tags                      TEXT,
     thumbnail_path            VARCHAR(255),
     thumbnail_compressed      BOOLEAN NOT NULL DEFAULT FALSE,
     thumbnail_compressed_path VARCHAR(255),
@@ -37,7 +35,7 @@ CREATE TABLE IF NOT EXISTS videos (
     scheduled                 BOOLEAN NOT NULL DEFAULT FALSE,
     scheduled_at              TIMESTAMP,
     premiere_ended            BOOLEAN NOT NULL DEFAULT FALSE,
-    duration_seconds          BIGINT,
+    duration_seconds         INTEGER,
     transcode_status          VARCHAR(20) NOT NULL DEFAULT 'UPLOADED',
     transcoded_path           VARCHAR(255),
 
@@ -45,7 +43,7 @@ CREATE TABLE IF NOT EXISTS videos (
     CONSTRAINT fk_videos_user FOREIGN KEY (user_id) REFERENCES users(id)
     );
 
--- ElementCollection: video_tags(video_id, tag)
+
 CREATE TABLE IF NOT EXISTS video_tags (
                                           video_id BIGINT NOT NULL,
                                           tag      VARCHAR(255) NOT NULL,
@@ -72,11 +70,50 @@ CREATE TABLE IF NOT EXISTS video_likes (
     CONSTRAINT uq_video_likes UNIQUE (video_id, user_id)
     );
 
+CREATE TABLE IF NOT EXISTS popularity_runs (
+                                               id     BIGSERIAL PRIMARY KEY,
+                                               run_at TIMESTAMP WITHOUT TIME ZONE NOT NULL
+);
+CREATE TABLE IF NOT EXISTS popularity_run_items (
+                                                    id       BIGSERIAL PRIMARY KEY,
+                                                    run_id   BIGINT NOT NULL,
+                                                    video_id BIGINT NOT NULL,
+                                                    rank     INTEGER NOT NULL,
+                                                    score    BIGINT NOT NULL,
+
+                                                    CONSTRAINT fk_pop_items_run
+                                                    FOREIGN KEY (run_id) REFERENCES popularity_runs(id) ON DELETE CASCADE,
+
+    CONSTRAINT fk_pop_items_video
+    FOREIGN KEY (video_id) REFERENCES videos(id) ON DELETE CASCADE
+    );
+CREATE TABLE IF NOT EXISTS video_daily_views (
+                                                 id          BIGSERIAL PRIMARY KEY,
+                                                 video_id    BIGINT NOT NULL,
+                                                 view_date   DATE NOT NULL,
+                                                 views_count BIGINT NOT NULL,
+
+                                                 CONSTRAINT fk_vdv_video
+                                                 FOREIGN KEY (video_id) REFERENCES videos(id) ON DELETE CASCADE
+    );
+CREATE TABLE IF NOT EXISTS transcode_jobs (
+                                              job_id        UUID PRIMARY KEY,
+                                              video_id      BIGINT NOT NULL,
+                                              status        VARCHAR(20) NOT NULL,
+    consumer_id   VARCHAR(120),
+    input_path    VARCHAR(500),
+    error_message TEXT,
+
+    created_at    TIMESTAMP WITHOUT TIME ZONE,
+    started_at    TIMESTAMP WITHOUT TIME ZONE,
+    finished_at   TIMESTAMP WITHOUT TIME ZONE,
+
+    CONSTRAINT fk_transcode_video
+    FOREIGN KEY (video_id) REFERENCES videos(id) ON DELETE CASCADE
+    );
 
 
--- =========================
--- 2) DATA (INSERTS)
--- =========================
+
 
 INSERT INTO users (email, username, password, first_name, last_name, address, enabled, activation_token, created_at)
 VALUES
@@ -465,16 +502,25 @@ INSERT INTO video_likes (video_id, user_id, created_at) VALUES
                                                             (12, 9, NOW()),
                                                             (12, 11, NOW());
 
--- =========================
--- 3) INDEXES
--- =========================
+
 
 CREATE INDEX IF NOT EXISTS idx_videos_geohash ON videos (geohash);
 CREATE INDEX IF NOT EXISTS idx_videos_geohash_prefix ON videos (geohash varchar_pattern_ops);
 
--- =========================
--- 4) SEQUENCE FIX (OPTIONAL, SAFE)
--- =========================
+
+CREATE INDEX IF NOT EXISTS idx_pop_items_run_id
+    ON popularity_run_items (run_id);
+
+CREATE INDEX IF NOT EXISTS idx_pop_items_video_id
+    ON popularity_run_items (video_id);
+
+CREATE INDEX IF NOT EXISTS idx_vdv_video_date
+    ON video_daily_views (video_id, view_date);
+
+CREATE INDEX IF NOT EXISTS idx_transcode_status
+    ON transcode_jobs (status);
+
+
 
 SELECT setval(pg_get_serial_sequence('users', 'id'), (SELECT COALESCE(MAX(id), 1) FROM users), true);
 SELECT setval(pg_get_serial_sequence('videos', 'id'), (SELECT COALESCE(MAX(id), 1) FROM videos), true);

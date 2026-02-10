@@ -17,7 +17,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/jutjubic
       SPRING_DATASOURCE_USERNAME: jutjubic
       SPRING_DATASOURCE_PASSWORD: jutjubic
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
       SPRING_SQL_INIT_MODE: never
       SPRING_JPA_DEFER_DATASOURCE_INITIALIZATION: "false"
 
@@ -39,7 +39,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/jutjubic
       SPRING_DATASOURCE_USERNAME: jutjubic
       SPRING_DATASOURCE_PASSWORD: jutjubic
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
       SPRING_SQL_INIT_MODE: never
       SPRING_JPA_DEFER_DATASOURCE_INITIALIZATION: "false"
 
