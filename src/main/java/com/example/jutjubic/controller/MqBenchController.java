@@ -17,7 +17,7 @@ public class MqBenchController {
     @PostMapping("/bench")
     public MqBenchResult bench(@RequestParam(defaultValue = "50") int count) {
         if (count < 1) count = 1;
-        if (count > 5000) count = 5000; // da se ne pretera
+        if (count > 5000) count = 5000;
 
         return publisher.benchmark(count);
     }

@@ -9,6 +9,8 @@ import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.time.LocalDateTime;
 
@@ -17,6 +19,20 @@ public class UploadEventPublisher {
 
     private final RabbitTemplate rabbitTemplate;
     private final ObjectMapper objectMapper;
+
+    public void publishBothAfterCommit(Video v) {
+        if (TransactionSynchronizationManager.isActualTransactionActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    publishBoth(v);
+                }
+            });
+        } else {
+
+            publishBoth(v);
+        }
+    }
 
     public UploadEventPublisher(RabbitTemplate rabbitTemplate, ObjectMapper objectMapper) {
         this.rabbitTemplate = rabbitTemplate;
@@ -108,7 +124,7 @@ public class UploadEventPublisher {
             String author = "zika";
             LocalDateTime createdAt = LocalDateTime.now();
 
-            // --- JSON serialize ---
+
             UploadEventJson jsonObj = new UploadEventJson(videoId, title, sizeMb, author, createdAt);
 
             long t1 = System.nanoTime();
@@ -123,14 +139,14 @@ public class UploadEventPublisher {
             jsonSerNanos += (t2 - t1);
             jsonBytesSum += jsonPayload.length;
 
-            // ✅ šalji RAW JSON bytes (fer sa protobuf)
+
             rabbitTemplate.send(
                     RabbitConfig.UPLOAD_EXCHANGE,
                     RabbitConfig.UPLOAD_ROUTING_JSON,
                     new Message(jsonPayload, jsonProps)
             );
 
-            // --- PB serialize ---
+
             UploadEvent pb = UploadEvent.newBuilder()
                     .setVideoId(videoId)
                     .setTitle(title)

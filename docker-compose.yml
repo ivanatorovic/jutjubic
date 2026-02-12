@@ -21,7 +21,7 @@ services:
       SPRING_SQL_INIT_MODE: never
       SPRING_JPA_DEFER_DATASOURCE_INITIALIZATION: "false"
 
-      # ✅ Rabbit NA HOSTU
+
       SPRING_RABBITMQ_HOST: host.docker.internal
       SPRING_RABBITMQ_PORT: 5672
       SPRING_RABBITMQ_USERNAME: guest
@@ -43,7 +43,7 @@ services:
       SPRING_SQL_INIT_MODE: never
       SPRING_JPA_DEFER_DATASOURCE_INITIALIZATION: "false"
 
-      # ✅ Rabbit NA HOSTU
+
       SPRING_RABBITMQ_HOST: host.docker.internal
       SPRING_RABBITMQ_PORT: 5672
       SPRING_RABBITMQ_USERNAME: guest

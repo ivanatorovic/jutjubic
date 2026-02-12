@@ -20,7 +20,7 @@ public class FfprobeUtil {
             double seconds = Double.parseDouble(out);
             return (int) Math.ceil(seconds);
         } catch (Exception e) {
-            return 0; // fallback
+            return 0;
         }
     }
 }

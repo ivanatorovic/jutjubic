@@ -11,5 +11,5 @@ message UploadEvent {
   string title = 2;
   int64 sizeMB = 3;
   string authorUsername = 4;
-  string createdAt = 5; // ISO string (npr 2026-02-05T18:10:00)
+  string createdAt = 5;
 }

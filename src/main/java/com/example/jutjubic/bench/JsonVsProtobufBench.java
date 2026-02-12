@@ -31,20 +31,20 @@ public class JsonVsProtobufBench {
                     LocalDateTime.now()
             );
 
-            // JSON serialize
+
             long t1 = System.nanoTime();
             byte[] jsonBytes = om.writeValueAsBytes(ev);
             long t2 = System.nanoTime();
             jsonSerNs.add(t2 - t1);
             jsonSize.add(jsonBytes.length);
 
-            // JSON deserialize
+
             long t3 = System.nanoTime();
             UploadEventJson back = om.readValue(jsonBytes, UploadEventJson.class);
             long t4 = System.nanoTime();
             jsonDeNs.add(t4 - t3);
 
-            // Protobuf build + serialize
+
             UploadEvent pb = UploadEvent.newBuilder()
                     .setVideoId(ev.videoId() != null ? ev.videoId() : 0L)
                     .setTitle(ev.title() != null ? ev.title() : "")
@@ -59,13 +59,13 @@ public class JsonVsProtobufBench {
             pbSerNs.add(p2 - p1);
             pbSize.add(pbBytes.length);
 
-            // Protobuf deserialize
+
             long p3 = System.nanoTime();
             UploadEvent backPb = UploadEvent.parseFrom(pbBytes);
             long p4 = System.nanoTime();
             pbDeNs.add(p4 - p3);
 
-            // (samo da se kompajler ne žali)
+
             if (back == null || backPb == null) throw new RuntimeException("impossible");
         }
 

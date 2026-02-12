@@ -182,7 +182,7 @@ public class VideoService {
 
             saved.setTranscodeStatus(Video.TranscodeStatus.TRANSCODING);
             videoRepository.save(saved);
-            uploadEventPublisher.publishBoth(saved);
+            uploadEventPublisher.publishBothAfterCommit(saved);
 
 
             TranscodeRequestMessage msg = new TranscodeRequestMessage(
